@@ -16,6 +16,9 @@
 \usepackage{listings}
 \usepackage{biblatex}
 \usepackage{csquotes}
+\usepackage{multirow}
+
+\graphicspath{ {images} }
 
 \addbibresource{bibliography.bib}
 
@@ -249,26 +252,35 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino 
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
-La prima board testata è un prodotto Adafruit con le seguenti specifiche:
-\begin{itemize}
-    \item todo
-\end{itemize}
+La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21G18 Cortex M0+ a 48 MHz, 256 KB di flash e 32 KB di memoria RAM.\cite{adafruit} L'architettura della board è ARMv6m, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
 
-Processore ATSAMD21 Cortex M0 a 48 MHz. \\
-ItsyBitsy M0 Express è lungo solo 1,4 pollici e largo 0,7 pollici, ma ha 6 pin di alimentazione e 23 pin GPIO digitali. \\
-La parte più interessante di ItsyBitsy M0 è che puoi usarlo con l'IDE Arduino. \\
-ATSAMD21G18 Cortex M0+ a 32 bit con 256 KB di flash e 32 KB di RAM. \\
-Processore logico da 3,3 V, 48 MHz, 32 bit. \\
-USB nativo supportato da ogni sistema operativo: può essere utilizzato in Arduino o CircuitPython come console seriale USB, tastiera/mouse HID e persino una piccola unità disco per archiviare script Python. \\
-Può essere utilizzato con Arduino IDE o CircuitPython
-23 pin GPIO con le seguenti funzionalità:
-- 1 x pin di uscita analogica reale: può essere utilizzato per riprodurre clip audio di qualità a 10 bit
-- 13 uscite PWM - per servi, LED, ecc
-- 11 ingressi analogici a 12 bit
-- 7 sensori tattili capacitivi hardware senza componenti aggiuntivi richiesti
-- 1 x pin di uscita speciale Vhigh fornisce la tensione più elevata da VBAT o VUSB, per pilotare NeoPixel, servi e altri dispositivi ad alta corrente. Uscita digitale spostata a 5 livelli per uscita a livello logico ad alta tensione. \cite{adafruit}
+\subsubsection{Crypto AEAD}
 
-Una subsubsection per ogni famiglia con i risultati
+Per la famiglia crypto AEAD sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+
+\includegraphics[width=\textwidth]{adafruit/ascon80pq.pdf}
+
+\includegraphics[width=\textwidth]{adafruit/ascon128abi32.pdf}
+
+\includegraphics[width=\textwidth]{adafruit/ascon128a.pdf}
+
+\includegraphics[width=\textwidth]{adafruit/ascon128bi32.pdf}
+
+\includegraphics[width=\textwidth]{adafruit/ascon128.pdf}
+
+% Fase di DEC
+
+\subsubsection{Crypto hash}
+
+Per la famiglia crypto hash sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+
+Inserisci tabelle appena capisci come fare.
+
+\subsubsection{Crypto auth}
+
+Per la famiglia crypto auth sono state testate le implementazioni ARMv6-M, bi32, bi32 ARMv6-M, bi32 lowreg, opt32 e ref.
+
+Inserisci tabelle appena capisci come fare.
 
 \subsection{Arduino Due}
 
