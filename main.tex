@@ -14,6 +14,10 @@
 \usepackage[noend]{algpseudocode}
 \usepackage[parfill]{parskip}
 \usepackage{listings}
+\usepackage{biblatex}
+\usepackage{csquotes}
+
+\addbibresource{bibliography.bib}
 
 \title{Titolo}
 \author{Oldani Mattia}
@@ -241,13 +245,36 @@ Aggiungi spiegazione dello script
 
 \section{Dispositivi utilizzati}
 
-L'attività di testing è stata eseguita su due dispositivi IoT fisici: Arduino Due e Adafruit ItsyBitsy M0 Express..
+L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e Raspberry qualcosa.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
+
+La prima board testata è un prodotto Adafruit con le seguenti specifiche:
+\begin{itemize}
+    \item todo
+\end{itemize}
+
+Processore ATSAMD21 Cortex M0 a 48 MHz. \\
+ItsyBitsy M0 Express è lungo solo 1,4 pollici e largo 0,7 pollici, ma ha 6 pin di alimentazione e 23 pin GPIO digitali. \\
+La parte più interessante di ItsyBitsy M0 è che puoi usarlo con l'IDE Arduino. \\
+ATSAMD21G18 Cortex M0+ a 32 bit con 256 KB di flash e 32 KB di RAM. \\
+Processore logico da 3,3 V, 48 MHz, 32 bit. \\
+USB nativo supportato da ogni sistema operativo: può essere utilizzato in Arduino o CircuitPython come console seriale USB, tastiera/mouse HID e persino una piccola unità disco per archiviare script Python. \\
+Può essere utilizzato con Arduino IDE o CircuitPython
+23 pin GPIO con le seguenti funzionalità:
+- 1 x pin di uscita analogica reale: può essere utilizzato per riprodurre clip audio di qualità a 10 bit
+- 13 uscite PWM - per servi, LED, ecc
+- 11 ingressi analogici a 12 bit
+- 7 sensori tattili capacitivi hardware senza componenti aggiuntivi richiesti
+- 1 x pin di uscita speciale Vhigh fornisce la tensione più elevata da VBAT o VUSB, per pilotare NeoPixel, servi e altri dispositivi ad alta corrente. Uscita digitale spostata a 5 livelli per uscita a livello logico ad alta tensione. \cite{adafruit}
 
 Una subsubsection per ogni famiglia con i risultati
 
 \subsection{Arduino Due}
+
+Una subsubsection per ogni famiglia con i risultati
+
+\subsection{Raspberry qualcosa}
 
 Una subsubsection per ogni famiglia con i risultati
 
@@ -258,5 +285,7 @@ Una subsubsection per ogni famiglia con i risultati
 1 pagina dove termino il discorso
 
 \newpage
+
+\printbibliography
 
 \end{document}
