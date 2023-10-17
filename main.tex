@@ -17,6 +17,8 @@
 \usepackage{biblatex}
 \usepackage{csquotes}
 \usepackage{multirow}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
 
 \graphicspath{ {images} }
 
@@ -83,129 +85,60 @@ La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle ma
 
 \chapter{Testing e analisi}
 
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain text e due diversi dispositivi IoT fisici.
+% "in precedenza" perchè nel capitolo 3 spiego le famiglie e tutto il resto
+Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici.
 
 \section{Suite di test}
 
-Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata.
-
-Il test fornito eseguiva mediamente mille esecuzioni di un dato algoritmo di una data famiglia, testando di volta in volta usando diverse grandezze di plain text e di dati associati.
-
-Il test utilizzato per i risultati presenti in questo report invece esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain text e dati associati di grandezze minime, massime (secondo i test definiti da ASCON) e intermedie significative.
+Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. Il test fornito eseguiva mediamente mille esecuzioni di un dato algoritmo di una data famiglia, testando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report invece esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain text e dati associati di grandezze minime, massime (secondo i test definiti da ASCON) e intermedie significative.
 
 \subsection{Pseudocodice}
 
 % Aggiungi colori: https://www.overleaf.com/learn/latex/Code_listing
-% Da comprimere molto per farlo stare max in 1 pagina e scrivere un effettivo pseudocodice
-% Incollo solo per averlo già qua
+% Da riscrivere, messo solo per averlo qua
+% Aggiungi parte nuovo script
 \begin{lstlisting}[language=C++]
-extern "C"
-{
-#include <inttypes.h>
-#include <string.h>
+test {
+key[keybytes] inizializzato
+nonce[CRYPTO_NPUBBYTES] inizializzato
+msg[MAX_MESSAGE_LENGTH] inizializzato
+msg2[MAX_MESSAGE_LENGTH]
+ad[MAX_ASSOCIATED_DATA_LENGTH] inizializzato
+ct[MAX_MESSAGE_LENGTH + CRYPTO_ABYTES]
+clen, mlen2
+mlen, adlen date da input
 
-#include "api.h"
-#include "crypto_aead.h"
+start timer
+test cifratura
+end timer
+
+start timer
+test decifratura + verifica
+end timer
 }
 
-#if defined(AVR_UART)
-#include "avr_uart.h"
-#endif
-
-#define MAX_MESSAGE_LENGTH 4 * ASCON_AEAD_RATE
-#define MAX_ASSOCIATED_DATA_LENGTH 4 * ASCON_AEAD_RATE
-
-void init_buffer(unsigned char *buffer, unsigned long long numbytes)
-{
-  unsigned long long i;
-  for (i = 0; i < numbytes; i++)
-    buffer[i] = (unsigned char)i;
+main {
+max_message_length = 4 ascon_aead_rate
+max_associated_data_length = 4 ascon_aead_rate
+test con i due parametri mlen adlen di varie lunghezze per 1000 volte
 }
-
-void test(unsigned long long mlen, unsigned long long adlen)
-{
-  unsigned char key[CRYPTO_KEYBYTES];
-  unsigned char nonce[CRYPTO_NPUBBYTES];
-  unsigned char msg[MAX_MESSAGE_LENGTH];
-  unsigned char msg2[MAX_MESSAGE_LENGTH];
-  unsigned char ad[MAX_ASSOCIATED_DATA_LENGTH];
-  unsigned char ct[MAX_MESSAGE_LENGTH + CRYPTO_ABYTES];
-  unsigned long long clen, mlen2;
-
-  init_buffer(key, sizeof(key));
-  init_buffer(nonce, sizeof(nonce));
-  init_buffer(msg, sizeof(msg));
-  init_buffer(ad, sizeof(ad));
-
-  unsigned long time = micros();
-  if (crypto_aead_encrypt(ct, &clen, msg, mlen, ad, adlen, NULL, nonce, key) != 0)
-  {
-    Serial.println("ERRORE: crypto_aead_encrypt");
-  }
-  Serial.print(micros() - time);
-  Serial.print(";");
-
-  time = micros();
-  if (crypto_aead_decrypt(msg2, &mlen2, NULL, ct, clen, ad, adlen, nonce, key) != 0)
-  {
-    Serial.println("ERRORE: prima crypto_aead_decrypt");
-  }
-  if (mlen != mlen2)
-  {
-    Serial.println("ERRORE: diversa lunghezza");
-  }
-  if (memcmp(msg, msg2, mlen))
-  {
-    Serial.println("ERRORE: impossibile recuperare il PT");
-  }
-
-  // test failed verification
-  ct[0] ^= 1;
-  if (crypto_aead_decrypt(msg2, &mlen2, NULL, ct, clen, ad, adlen, nonce, key) == 0)
-  {
-    Serial.println("ERRORE: diverso tag");
-  }
-  Serial.print(micros() - time);
-}
-
-void setup()
-{
-  Serial.begin(9600);
-
-  // Tip by Matteo Yon per permettere la stampa
-  while (!Serial);
-
-  for (int i = 0; i < 1000; i++)
-  {
-    test(0, 0);
-    Serial.print(";");
-    test(1, 1);
-    Serial.print(";");
-    test(ASCON_AEAD_RATE, ASCON_AEAD_RATE);
-    Serial.print(";");
-    test(2 * ASCON_AEAD_RATE, 2 * ASCON_AEAD_RATE);
-    Serial.print(";");
-    test(3 * ASCON_AEAD_RATE, 3 * ASCON_AEAD_RATE);
-    Serial.print(";");
-    test(4 * ASCON_AEAD_RATE, 4 * ASCON_AEAD_RATE);
-    Serial.println();
-  }
-
-  Serial.end();
-}
-
-void loop() {}
 \end{lstlisting}
 
-Aggiungi spiegazione dello pseudocodice
+Lo pseudocodice è formato da due funzioni:
+\begin{itemize}
+    \item \textbf{main}: vengono definite due costanti, che rappresentano la lunghezza massima di plain-text testabile (in byte) e la lunghezza massima di associated data utilizzabili (in byte); per 1000 volte viene quindi eseguita la funzione test che, date la lunghezza del plain-text e degli associated data, va a stampare su un file CSV i risultati ottenuti;
+    \item \textbf{test}: vengono definite una serie di variabili necessarie per l'esecuzione delle funzioni fornite da ASCON, come la chiave, il nonce, il plain-text e gli associated data; una volta inizializzate le variabili vengono misurati i tempi di esecuzione della parte di cifratura e decifratura, e poi inseriti in un file CSV.
+\end{itemize}
 
 \subsection{Arduino IDE}
 
 Il file di test veniva prima inserito in un progetto Arduino con i file che rappresentavano l'implementazione di un dato algoritmo di una data famiglia, poi compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. 
 
+% Aggiungi parte Raspberry
+
 \subsection{Raccolta dei risultati}
 
-I risultati delle mille esecuzioni dei test di varie grandezze di plain text e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file csv
+I risultati delle mille esecuzioni dei test di varie grandezze di plain-text e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file csv.
 
 % Aggiungi colori: https://www.overleaf.com/learn/latex/Code_listing
 \begin{lstlisting}[language=Python]
@@ -244,11 +177,11 @@ if __name__ == "__main__":
     main(args.filename, args.port)
 \end{lstlisting}
 
-Aggiungi spiegazione dello script
+Aggiungi spiegazione dello script + parte raspberry
 
 \section{Dispositivi utilizzati}
 
-L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e Raspberry qualcosa.
+L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
@@ -258,29 +191,452 @@ La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21
 
 Per la famiglia crypto AEAD sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
-\includegraphics[width=\textwidth]{adafruit/ascon80pq.pdf}
+Spiegazione tabelle + come sono organizzate e perchè.
 
-\includegraphics[width=\textwidth]{adafruit/ascon128abi32.pdf}
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 48-m & 48-a & 48-M & 64-m & 64-a & 64-M \\
+				\hline
+				ascon128av12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 121 & 122.46 & 130 & 163 & 164.85 & 172 & 236 & 239.09 & 245 & 315 & 317.96 & 325 & 393 & 396.3 & 404 & 471 & 475.99 & 482 \\
+				\hline
+				armv6m lowsize & 129 & 130.73 & 138 & 171 & 172.9 & 180 & 255 & 258.27 & 266 & 341 & 344.3 & 352 & 426 & 430.77 & 437 & 511 & 516.54 & 522 \\
+				\hline
+				bi32 & 186 & 187.82 & 196 & 249 & 251.8 & 260 & 364 & 367.39 & 374 & 487 & 492.29 & 498 & 611 & 617.51 & 622 & 735 & 742.61 & 746 \\
+				\hline
+				bi32 armv6m & 129 & 130.34 & 138 & 176 & 177.42 & 184 & 252 & 254.79 & 261 & 339 & 342.34 & 348 & 426 & 430.32 & 437 & 512 & 517.65 & 523 \\
+				\hline
+				bi32 lowreg & 207 & 209.28 & 218 & 271 & 274.46 & 282 & 382 & 385.86 & 393 & 504 & 509.15 & 515 & 626 & 632.08 & 637 & 748 & 755.4 & 759 \\
+				\hline
+				bi32 lowsize & 197 & 199.71 & 208 & 257 & 259.81 & 267 & 386 & 390.48 & 397 & 516 & 520.78 & 527 & 646 & 652.12 & 657 & 776 & 783.53 & 786 \\
+				\hline
+				opt32 & 155 & 156.86 & 163 & 207 & 209.17 & 217 & 308 & 311.21 & 318 & 413 & 417.96 & 424 & 519 & 524.11 & 530 & 625 & 630.99 & 636 \\
+				\hline
+				opt32 lowsize & 202 & 204.38 & 211 & 267 & 269.48 & 277 & 399 & 402.76 & 409 & 531 & 536.5 & 542 & 664 & 670.81 & 675 & 799 & 804.17 & 808 \\
+				\hline
+				ref & 173 & 174.24 & 183 & 224 & 226.88 & 235 & 347 & 351.0 & 358 & 472 & 477.07 & 483 & 596 & 602.63 & 607 & 721 & 727.8 & 732 \\
+				\hline
+				ascon128abi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 176 & 177.9 & 184 & 235 & 237.24 & 243 & 344 & 347.1 & 352 & 457 & 461.65 & 468 & 571 & 576.1 & 581 & 686 & 690.7 & 695 \\
+				\hline
+				bi32 armv6m & 118 & 119.44 & 127 & 159 & 160.77 & 168 & 231 & 233.6 & 240 & 308 & 310.16 & 318 & 384 & 388.43 & 395 & 460 & 464.19 & 471 \\
+				\hline
+				bi32 lowreg & 194 & 196.44 & 203 & 253 & 255.83 & 262 & 359 & 362.72 & 369 & 470 & 474.73 & 481 & 581 & 587.03 & 592 & 694 & 698.73 & 703 \\
+				\hline
+				bi32 lowsize & 182 & 183.78 & 192 & 240 & 242.75 & 251 & 358 & 362.15 & 369 & 477 & 482.16 & 488 & 596 & 602.59 & 607 & 715 & 722.22 & 726 \\
+				\hline
+				ref & 169 & 170.85 & 180 & 217 & 220.13 & 228 & 334 & 337.24 & 345 & 452 & 456.87 & 462 & 570 & 575.46 & 580 & 687 & 694.38 & 698 \\
+				\hline
+				ascon128v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 119 & 119.91 & 128 & 152 & 152.96 & 160 & 206 & 207.83 & 216 & 265 & 267.73 & 275 & 324 & 327.1 & 334 & 382 & 386.09 & 393 \\
+				\hline
+				armv6m lowsize & 129 & 130.48 & 138 & 162 & 163.48 & 170 & 223 & 224.77 & 231 & 284 & 286.56 & 293 & 345 & 348.7 & 356 & 407 & 410.7 & 417 \\
+				\hline
+				bi32 & 185 & 187.27 & 194 & 238 & 240.12 & 248 & 321 & 324.33 & 332 & 413 & 417.65 & 424 & 506 & 510.69 & 517 & 598 & 604.42 & 610 \\
+				\hline
+				bi32 armv6m & 127 & 128.23 & 136 & 166 & 167.29 & 174 & 218 & 220.3 & 227 & 281 & 284.24 & 290 & 344 & 348.01 & 353 & 407 & 411.71 & 416 \\
+				\hline
+				bi32 lowreg & 206 & 208.68 & 215 & 258 & 261.17 & 267 & 336 & 339.26 & 345 & 424 & 429.12 & 435 & 513 & 518.39 & 525 & 602 & 608.64 & 613 \\
+				\hline
+				bi32 lowsize & 197 & 199.01 & 208 & 244 & 245.92 & 254 & 334 & 337.56 & 345 & 425 & 429.63 & 436 & 517 & 521.86 & 527 & 608 & 613.94 & 619 \\
+				\hline
+				opt32 & 158 & 160.28 & 167 & 200 & 201.95 & 209 & 273 & 275.89 & 282 & 351 & 354.1 & 361 & 429 & 433.07 & 439 & 506 & 511.35 & 517 \\
+				\hline
+				opt32 lowsize & 202 & 203.93 & 211 & 252 & 254.35 & 263 & 347 & 350.82 & 358 & 443 & 447.6 & 454 & 539 & 544.58 & 550 & 635 & 641.72 & 646 \\
+				\hline
+				ref & 173 & 175.03 & 182 & 213 & 214.88 & 223 & 299 & 301.88 & 309 & 386 & 389.68 & 397 & 473 & 478.02 & 484 & 561 & 566.73 & 572 \\
+				\hline
+				ascon128bi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 175 & 177.36 & 184 & 222 & 224.83 & 231 & 305 & 308.18 & 314 & 392 & 395.9 & 402 & 479 & 483.62 & 490 & 566 & 571.93 & 577 \\
+				\hline
+				bi32 armv6m & 116 & 117.35 & 125 & 149 & 150.77 & 158 & 203 & 204.77 & 212 & 261 & 263.84 & 270 & 319 & 322.32 & 329 & 376 & 380.52 & 387 \\
+				\hline
+				bi32 lowreg & 194 & 196.2 & 205 & 240 & 242.17 & 250 & 317 & 320.03 & 328 & 399 & 402.93 & 410 & 481 & 485.95 & 492 & 564 & 569.21 & 574 \\
+				\hline
+				bi32 lowsize & 181 & 183.66 & 192 & 226 & 228.98 & 237 & 311 & 314.72 & 322 & 397 & 401.58 & 408 & 483 & 487.69 & 494 & 569 & 574.31 & 580 \\
+				\hline
+				ref & 176 & 178.07 & 185 & 222 & 224.08 & 231 & 303 & 306.25 & 312 & 385 & 389.05 & 394 & 467 & 472.0 & 478 & 552 & 555.67 & 561 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
-\includegraphics[width=\textwidth]{adafruit/ascon128a.pdf}
-
-\includegraphics[width=\textwidth]{adafruit/ascon128bi32.pdf}
-
-\includegraphics[width=\textwidth]{adafruit/ascon128.pdf}
-
-% Fase di DEC
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 48-m & 48-a & 48-M & 64-m & 64-a & 64-M \\
+				\hline
+				ascon128av12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 244 & 246.76 & 253 & 331 & 334.71 & 342 & 480 & 484.84 & 491 & 641 & 646.86 & 652 & 804 & 809.86 & 813 & 965 & 971.95 & 974 \\
+				\hline
+				armv6m lowsize & 264 & 266.93 & 275 & 348 & 351.13 & 358 & 522 & 526.66 & 533 & 698 & 704.47 & 709 & 876 & 882.0 & 885 & 1059 & 1059.62 & 1062 \\
+				\hline
+				bi32 & 373 & 376.49 & 384 & 503 & 507.41 & 513 & 732 & 739.08 & 743 & 985 & 991.8 & 994 & 1242 & 1244.72 & 1253 & 1493 & 1497.68 & 1504 \\
+				\hline
+				bi32 armv6m & 261 & 263.25 & 270 & 357 & 360.33 & 365 & 512 & 516.57 & 522 & 692 & 696.95 & 701 & 871 & 877.28 & 880 & 1057 & 1057.45 & 1060 \\
+				\hline
+				bi32 lowreg & 415 & 418.47 & 426 & 546 & 551.19 & 557 & 772 & 778.91 & 783 & 1031 & 1031.59 & 1035 & 1281 & 1284.24 & 1292 & 1531 & 1536.18 & 1542 \\
+				\hline
+				bi32 lowsize & 399 & 402.28 & 409 & 519 & 523.84 & 530 & 782 & 789.65 & 793 & 1056 & 1056.76 & 1060 & 1321 & 1324.22 & 1332 & 1586 & 1591.94 & 1597 \\
+				\hline
+				opt32 & 320 & 323.21 & 331 & 427 & 430.84 & 438 & 631 & 636.51 & 642 & 849 & 854.99 & 858 & 1072 & 1073.18 & 1081 & 1289 & 1291.63 & 1299 \\
+				\hline
+				opt32 lowsize & 409 & 412.92 & 420 & 540 & 544.47 & 550 & 811 & 816.14 & 820 & 1089 & 1089.3 & 1097 & 1359 & 1362.71 & 1370 & 1630 & 1636.17 & 1641 \\
+				\hline
+				ref & 368 & 371.86 & 379 & 473 & 477.56 & 484 & 724 & 730.67 & 735 & 981 & 988.0 & 990 & 1242 & 1245.12 & 1254 & 1497 & 1501.84 & 1508 \\
+				\hline
+				ascon128abi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 353 & 356.6 & 362 & 474 & 478.85 & 485 & 695 & 699.53 & 704 & 926 & 933.04 & 935 & 1165 & 1166.14 & 1174 & 1396 & 1399.85 & 1405 \\
+				\hline
+				bi32 armv6m & 237 & 240.22 & 246 & 323 & 326.41 & 332 & 469 & 472.22 & 480 & 627 & 632.54 & 637 & 786 & 791.14 & 795 & 944 & 950.23 & 953 \\
+				\hline
+				bi32 lowreg & 390 & 394.12 & 401 & 511 & 515.64 & 522 & 728 & 732.76 & 737 & 955 & 962.06 & 964 & 1190 & 1191.97 & 1199 & 1418 & 1421.48 & 1428 \\
+				\hline
+				bi32 lowsize & 369 & 372.0 & 379 & 486 & 490.18 & 496 & 727 & 733.87 & 738 & 971 & 979.84 & 982 & 1223 & 1225.64 & 1234 & 1466 & 1471.25 & 1477 \\
+				\hline
+				ref & 386 & 389.56 & 397 & 484 & 488.69 & 495 & 720 & 727.09 & 731 & 961 & 970.12 & 972 & 1210 & 1212.37 & 1221 & 1450 & 1454.99 & 1461 \\
+				\hline
+				ascon128v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 241 & 242.96 & 251 & 309 & 311.37 & 320 & 418 & 421.92 & 428 & 538 & 542.79 & 549 & 658 & 664.36 & 669 & 778 & 785.87 & 789 \\
+				\hline
+				armv6m lowsize & 263 & 266.14 & 272 & 329 & 332.54 & 338 & 453 & 456.58 & 463 & 578 & 583.31 & 589 & 705 & 709.77 & 714 & 830 & 836.0 & 839 \\
+				\hline
+				bi32 & 373 & 375.86 & 383 & 478 & 482.34 & 489 & 645 & 650.52 & 656 & 835 & 840.92 & 844 & 1029 & 1030.15 & 1033 & 1217 & 1219.24 & 1226 \\
+				\hline
+				bi32 armv6m & 256 & 258.9 & 265 & 335 & 338.53 & 344 & 441 & 445.68 & 450 & 570 & 575.69 & 581 & 701 & 705.66 & 710 & 830 & 835.4 & 839 \\
+				\hline
+				bi32 lowreg & 414 & 417.52 & 425 & 520 & 524.78 & 531 & 674 & 678.71 & 683 & 852 & 858.27 & 861 & 1037 & 1037.89 & 1041 & 1215 & 1217.31 & 1224 \\
+				\hline
+				bi32 lowsize & 398 & 401.72 & 409 & 492 & 496.51 & 503 & 676 & 681.58 & 686 & 861 & 868.42 & 872 & 1055 & 1055.6 & 1058 & 1240 & 1242.57 & 1251 \\
+				\hline
+				opt32 & 317 & 319.81 & 325 & 405 & 408.72 & 416 & 550 & 554.86 & 561 & 708 & 712.77 & 717 & 865 & 870.73 & 873 & 1028 & 1028.66 & 1032 \\
+				\hline
+				opt32 lowsize & 408 & 412.5 & 419 & 509 & 514.05 & 520 & 702 & 709.07 & 713 & 899 & 905.36 & 908 & 1101 & 1101.66 & 1109 & 1295 & 1298.48 & 1306 \\
+				\hline
+				ref & 361 & 364.81 & 372 & 442 & 446.24 & 453 & 616 & 622.23 & 627 & 794 & 801.06 & 805 & 973 & 980.17 & 982 & 1158 & 1159.81 & 1167 \\
+				\hline
+				ascon128bi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 353 & 356.3 & 363 & 450 & 454.32 & 461 & 615 & 621.38 & 626 & 794 & 799.64 & 803 & 971 & 977.84 & 980 & 1155 & 1156.61 & 1164 \\
+				\hline
+				bi32 armv6m & 235 & 236.72 & 244 & 303 & 306.28 & 312 & 410 & 413.97 & 421 & 528 & 533.4 & 539 & 647 & 652.95 & 658 & 768 & 773.32 & 777 \\
+				\hline
+				bi32 lowreg & 390 & 393.85 & 401 & 484 & 488.62 & 495 & 638 & 644.39 & 649 & 805 & 812.86 & 816 & 974 & 981.16 & 983 & 1148 & 1149.88 & 1159 \\
+				\hline
+				bi32 lowsize & 368 & 370.92 & 378 & 458 & 462.45 & 469 & 631 & 636.55 & 641 & 805 & 812.45 & 815 & 981 & 987.71 & 990 & 1162 & 1163.54 & 1173 \\
+				\hline
+				ref & 372 & 375.09 & 381 & 464 & 468.59 & 475 & 628 & 631.9 & 637 & 793 & 798.76 & 802 & 959 & 965.53 & 968 & 1131 & 1132.69 & 1140 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
 \subsubsection{Crypto hash}
 
 Per la famiglia crypto hash sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
-Inserisci tabelle appena capisci come fare.
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconhashav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 184 & 186.0 & 195 & 222 & 223.19 & 232 & 259 & 261.34 & 270 & 333 & 338.34 & 344 & 481 & 484.63 & 492 & 778 & 786.73 & 789 & 1381 & 1383.88 & 1392 & 2577 & 2581.2 & 2588 & 4972 & 4979.65 & 4981 \\
+				\hline
+				armv6m lowsize & 187 & 189.2 & 199 & 225 & 227.58 & 236 & 263 & 265.76 & 274 & 339 & 342.69 & 350 & 492 & 496.62 & 503 & 796 & 803.51 & 807 & 1414 & 1418.29 & 1425 & 2641 & 2648.13 & 2652 & 5103 & 5106.19 & 5115 \\
+				\hline
+				bi32 & 270 & 272.77 & 280 & 326 & 329.63 & 337 & 383 & 387.04 & 394 & 496 & 500.77 & 507 & 722 & 729.63 & 733 & 1184 & 1186.26 & 1194 & 2099 & 2099.95 & 2107 & 3920 & 3926.98 & 3929 & 7576 & 7581.98 & 7587 \\
+				\hline
+				bi32 armv6m & 191 & 192.45 & 200 & 229 & 231.61 & 238 & 267 & 269.46 & 277 & 343 & 347.73 & 354 & 496 & 501.29 & 507 & 803 & 808.88 & 812 & 1421 & 1425.93 & 1432 & 2652 & 2658.86 & 2663 & 5122 & 5124.35 & 5131 \\
+				\hline
+				bi32 lowreg & 271 & 272.83 & 280 & 327 & 330.86 & 336 & 382 & 386.51 & 391 & 494 & 498.72 & 504 & 718 & 722.61 & 727 & 1171 & 1172.64 & 1180 & 2071 & 2072.02 & 2080 & 3863 & 3870.66 & 3872 & 7460 & 7465.74 & 7471 \\
+				\hline
+				bi32 lowsize & 273 & 275.72 & 282 & 329 & 332.37 & 338 & 386 & 389.6 & 396 & 499 & 503.08 & 509 & 726 & 731.96 & 735 & 1185 & 1187.48 & 1194 & 2098 & 2099.39 & 2107 & 3916 & 3923.37 & 3925 & 7566 & 7571.58 & 7576 \\
+				\hline
+				opt32 & 244 & 247.06 & 253 & 294 & 297.45 & 303 & 344 & 347.69 & 353 & 444 & 448.93 & 455 & 646 & 650.65 & 655 & 1053 & 1053.79 & 1062 & 1855 & 1861.51 & 1864 & 3470 & 3475.21 & 3481 & 6698 & 6703.58 & 6708 \\
+				\hline
+				opt32 lowsize & 294 & 297.51 & 303 & 356 & 359.31 & 365 & 418 & 421.99 & 426 & 543 & 546.03 & 552 & 790 & 795.12 & 799 & 1290 & 1293.13 & 1299 & 2286 & 2289.77 & 2295 & 4278 & 4281.69 & 4287 & 8263 & 8266.42 & 8272 \\
+				\hline
+				ref & 314 & 316.65 & 324 & 367 & 369.94 & 378 & 420 & 424.25 & 431 & 526 & 531.17 & 537 & 738 & 745.27 & 749 & 1171 & 1173.32 & 1180 & 2029 & 2029.31 & 2037 & 3734 & 3741.97 & 3745 & 7164 & 7166.94 & 7174 \\
+				\hline
+				asconhashabi32v12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 262 & 264.75 & 270 & 316 & 319.03 & 326 & 371 & 374.58 & 382 & 480 & 485.09 & 491 & 700 & 704.6 & 709 & 1143 & 1145.02 & 1152 & 2025 & 2025.24 & 2028 & 3780 & 3786.08 & 3789 & 7304 & 7307.28 & 7313 \\
+				\hline
+				bi32 armv6m & 181 & 183.98 & 190 & 218 & 220.16 & 227 & 254 & 257.07 & 264 & 327 & 330.31 & 338 & 473 & 476.82 & 484 & 766 & 772.03 & 775 & 1357 & 1359.63 & 1368 & 2532 & 2537.09 & 2543 & 4884 & 4890.51 & 4893 \\
+				\hline
+				bi32 lowreg & 262 & 263.2 & 273 & 316 & 319.54 & 327 & 370 & 375.69 & 381 & 478 & 484.55 & 488 & 694 & 701.01 & 704 & 1134 & 1135.62 & 1145 & 2005 & 2006.52 & 2010 & 3741 & 3749.78 & 3752 & 7226 & 7230.18 & 7239 \\
+				\hline
+				bi32 lowsize & 264 & 267.33 & 273 & 319 & 322.65 & 328 & 374 & 378.48 & 385 & 484 & 489.19 & 495 & 706 & 710.99 & 715 & 1153 & 1154.28 & 1162 & 2041 & 2041.67 & 2050 & 3810 & 3816.21 & 3819 & 7361 & 7364.6 & 7371 \\
+				\hline
+				ref & 309 & 312.74 & 318 & 360 & 363.91 & 369 & 411 & 415.04 & 421 & 512 & 517.02 & 522 & 716 & 721.94 & 725 & 1127 & 1128.71 & 1136 & 1938 & 1945.71 & 1947 & 3573 & 3579.33 & 3584 & 6838 & 6844.27 & 6847 \\
+				\hline
+				asconhashv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 234 & 236.44 & 243 & 288 & 290.98 & 297 & 341 & 344.58 & 350 & 449 & 452.77 & 459 & 665 & 669.28 & 674 & 1101 & 1102.43 & 1110 & 1961 & 1968.19 & 1970 & 3694 & 3699.1 & 3703 & 7159 & 7160.95 & 7168 \\
+				\hline
+				armv6m lowsize & 237 & 237.88 & 247 & 292 & 297.95 & 302 & 347 & 352.45 & 358 & 456 & 458.05 & 467 & 675 & 679.25 & 685 & 1122 & 1122.62 & 1132 & 2006 & 2007.2 & 2010 & 3775 & 3776.57 & 3778 & 7304 & 7307.08 & 7317 \\
+				\hline
+				bi32 & 347 & 350.63 & 357 & 429 & 433.79 & 440 & 511 & 516.49 & 522 & 676 & 682.61 & 687 & 1014 & 1014.25 & 1022 & 1672 & 1678.11 & 1682 & 3005 & 3006.11 & 3008 & 5655 & 5662.29 & 5666 & 10966 & 10973.56 & 10976 \\
+				\hline
+				bi32 armv6m & 239 & 241.71 & 250 & 293 & 296.65 & 304 & 348 & 351.27 & 358 & 456 & 460.16 & 467 & 673 & 679.08 & 683 & 1115 & 1116.55 & 1124 & 1984 & 1991.21 & 1993 & 3733 & 3740.81 & 3744 & 7237 & 7239.3 & 7247 \\
+				\hline
+				bi32 lowreg & 349 & 353.65 & 358 & 430 & 434.75 & 441 & 512 & 516.74 & 522 & 677 & 681.32 & 686 & 1011 & 1011.25 & 1019 & 1665 & 1670.16 & 1674 & 2980 & 2987.5 & 2989 & 5618 & 5621.53 & 5627 & 10885 & 10892.44 & 10894 \\
+				\hline
+				bi32 lowsize & 350 & 353.86 & 361 & 433 & 437.6 & 444 & 515 & 520.91 & 526 & 680 & 686.99 & 691 & 1019 & 1019.21 & 1027 & 1678 & 1683.88 & 1689 & 3014 & 3014.95 & 3018 & 5669 & 5676.44 & 5680 & 10997 & 10997.89 & 10999 \\
+				\hline
+				opt32 & 317 & 320.9 & 328 & 392 & 395.5 & 403 & 466 & 470.97 & 477 & 616 & 621.65 & 627 & 916 & 923.32 & 925 & 1519 & 1525.0 & 1530 & 2722 & 2728.47 & 2733 & 5135 & 5136.99 & 5146 & 9951 & 9953.84 & 9955 \\
+				\hline
+				opt32 lowsize & 382 & 385.97 & 393 & 473 & 478.12 & 484 & 564 & 568.7 & 575 & 746 & 752.68 & 756 & 1118 & 1120.18 & 1129 & 1846 & 1854.03 & 1857 & 3319 & 3322.7 & 3330 & 6256 & 6259.62 & 6267 & 12131 & 12132.9 & 12141 \\
+				\hline
+				ref & 387 & 390.75 & 397 & 464 & 468.28 & 475 & 542 & 547.67 & 553 & 698 & 705.23 & 709 & 1018 & 1019.23 & 1028 & 1641 & 1648.29 & 1652 & 2896 & 2905.41 & 2907 & 5414 & 5418.9 & 5426 & 10440 & 10447.88 & 10454 \\
+				\hline
+				asconhashbi32v12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 339 & 342.12 & 350 & 419 & 423.06 & 430 & 499 & 503.67 & 510 & 659 & 666.31 & 670 & 981 & 989.59 & 991 & 1630 & 1637.72 & 1641 & 2922 & 2930.97 & 2933 & 5514 & 5520.04 & 5526 & 10688 & 10698.3 & 10703 \\
+				\hline
+				bi32 armv6m & 230 & 232.22 & 239 & 283 & 285.35 & 291 & 335 & 338.57 & 344 & 440 & 444.24 & 449 & 651 & 656.46 & 660 & 1078 & 1079.02 & 1086 & 1919 & 1926.21 & 1928 & 3615 & 3619.42 & 3624 & 7006 & 7006.44 & 7009 \\
+				\hline
+				bi32 lowreg & 340 & 343.94 & 351 & 420 & 424.74 & 431 & 500 & 504.78 & 511 & 659 & 665.89 & 670 & 981 & 988.43 & 990 & 1629 & 1633.72 & 1638 & 2915 & 2922.34 & 2924 & 5495 & 5501.31 & 5506 & 10652 & 10657.3 & 10662 \\
+				\hline
+				bi32 lowsize & 342 & 345.82 & 353 & 423 & 427.76 & 434 & 504 & 509.23 & 515 & 666 & 672.32 & 677 & 998 & 998.72 & 1000 & 1645 & 1651.94 & 1656 & 2950 & 2956.89 & 2959 & 5563 & 5567.82 & 5574 & 10783 & 10790.8 & 10794 \\
+				\hline
+				ref & 390 & 393.54 & 400 & 465 & 469.31 & 475 & 539 & 544.74 & 550 & 689 & 695.25 & 699 & 989 & 996.62 & 998 & 1593 & 1598.85 & 1604 & 2798 & 2804.72 & 2807 & 5212 & 5214.09 & 5221 & 10033 & 10034.69 & 10038 \\
+				\hline
+				asconxofav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 184 & 187.17 & 193 & 222 & 223.34 & 232 & 259 & 260.87 & 269 & 333 & 338.35 & 344 & 481 & 486.2 & 492 & 778 & 786.52 & 789 & 1381 & 1385.44 & 1392 & 2577 & 2582.89 & 2588 & 4972 & 4979.63 & 4981 \\
+				\hline
+				armv6m lowsize & 187 & 189.09 & 198 & 225 & 227.75 & 236 & 263 & 265.81 & 274 & 339 & 342.77 & 350 & 492 & 496.59 & 502 & 796 & 803.6 & 807 & 1414 & 1418.47 & 1425 & 2641 & 2648.26 & 2652 & 5103 & 5106.05 & 5115 \\
+				\hline
+				bi32 & 270 & 272.83 & 280 & 326 & 329.62 & 337 & 383 & 387.02 & 394 & 496 & 500.75 & 507 & 722 & 729.75 & 733 & 1184 & 1186.19 & 1195 & 2099 & 2099.9 & 2108 & 3920 & 3927.01 & 3929 & 7576 & 7582.01 & 7587 \\
+				\hline
+				bi32 armv6m & 191 & 192.73 & 200 & 229 & 231.58 & 238 & 267 & 269.47 & 276 & 343 & 347.45 & 352 & 496 & 501.34 & 507 & 803 & 808.97 & 812 & 1421 & 1425.92 & 1432 & 2654 & 2658.77 & 2663 & 5122 & 5123.97 & 5131 \\
+				\hline
+				bi32 lowreg & 271 & 272.92 & 281 & 327 & 330.89 & 338 & 382 & 385.95 & 393 & 494 & 498.73 & 505 & 716 & 723.2 & 727 & 1171 & 1173.2 & 1182 & 2070 & 2072.18 & 2081 & 3860 & 3870.2 & 3872 & 7458 & 7465.76 & 7472 \\
+				\hline
+				bi32 lowsize & 273 & 275.75 & 283 & 329 & 332.24 & 340 & 386 & 389.57 & 396 & 499 & 503.07 & 510 & 724 & 731.69 & 735 & 1185 & 1187.44 & 1196 & 2098 & 2099.55 & 2107 & 3916 & 3923.33 & 3925 & 7566 & 7571.57 & 7576 \\
+				\hline
+				opt32 & 244 & 246.85 & 253 & 294 & 297.53 & 303 & 344 & 347.56 & 353 & 444 & 449.06 & 455 & 646 & 650.67 & 655 & 1053 & 1053.91 & 1062 & 1855 & 1861.54 & 1864 & 3470 & 3475.21 & 3481 & 6698 & 6703.68 & 6708 \\
+				\hline
+				opt32 lowsize & 294 & 297.56 & 305 & 356 & 359.26 & 367 & 418 & 421.65 & 428 & 541 & 545.9 & 552 & 788 & 795.14 & 798 & 1290 & 1293.42 & 1301 & 2286 & 2289.78 & 2297 & 4278 & 4281.64 & 4289 & 8263 & 8266.27 & 8274 \\
+				\hline
+				ref & 314 & 316.52 & 322 & 367 & 369.77 & 377 & 420 & 424.59 & 431 & 526 & 531.22 & 536 & 740 & 745.24 & 749 & 1171 & 1173.36 & 1180 & 2028 & 2029.22 & 2037 & 3736 & 3741.98 & 3746 & 7164 & 7166.86 & 7173 \\
+				\hline
+				asconxofv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 234 & 236.46 & 245 & 288 & 290.91 & 299 & 341 & 344.79 & 352 & 449 & 452.86 & 459 & 663 & 669.39 & 674 & 1101 & 1102.28 & 1111 & 1959 & 1968.05 & 1969 & 3691 & 3699.11 & 3703 & 7158 & 7161.07 & 7170 \\
+				\hline
+				armv6m lowsize & 237 & 239.06 & 246 & 292 & 298.84 & 302 & 347 & 350.88 & 355 & 456 & 457.78 & 466 & 675 & 678.08 & 685 & 1122 & 1123.43 & 1131 & 2007 & 2007.08 & 2008 & 3769 & 3775.98 & 3778 & 7306 & 7307.07 & 7315 \\
+				\hline
+				bi32 & 347 & 350.31 & 356 & 429 & 433.82 & 439 & 511 & 516.38 & 522 & 677 & 682.42 & 686 & 1014 & 1014.21 & 1021 & 1673 & 1678.03 & 1682 & 3005 & 3006.12 & 3010 & 5657 & 5662.1 & 5666 & 10966 & 10973.54 & 10975 \\
+				\hline
+				bi32 armv6m & 239 & 241.59 & 248 & 293 & 296.7 & 302 & 348 & 351.05 & 357 & 456 & 460.24 & 465 & 674 & 678.91 & 683 & 1115 & 1116.83 & 1124 & 1984 & 1991.15 & 1993 & 3735 & 3740.92 & 3744 & 7237 & 7239.32 & 7246 \\
+				\hline
+				bi32 lowreg & 349 & 353.72 & 360 & 430 & 434.67 & 441 & 512 & 516.68 & 523 & 675 & 681.23 & 686 & 1010 & 1011.23 & 1020 & 1663 & 1670.16 & 1674 & 2978 & 2987.33 & 2989 & 5614 & 5621.38 & 5627 & 10881 & 10892.09 & 10894 \\
+				\hline
+				bi32 lowsize & 350 & 353.76 & 361 & 433 & 437.63 & 444 & 515 & 520.81 & 526 & 680 & 686.93 & 691 & 1019 & 1019.19 & 1028 & 1678 & 1683.88 & 1689 & 3014 & 3014.94 & 3018 & 5669 & 5676.31 & 5680 & 10996 & 10997.9 & 10999 \\
+				\hline
+				opt32 & 317 & 320.84 & 327 & 392 & 395.58 & 402 & 466 & 471.19 & 477 & 616 & 621.82 & 627 & 916 & 923.28 & 925 & 1520 & 1525.1 & 1530 & 2724 & 2728.58 & 2733 & 5135 & 5137.03 & 5144 & 9951 & 9953.85 & 9956 \\
+				\hline
+				opt32 lowsize & 382 & 385.86 & 391 & 473 & 477.93 & 483 & 564 & 568.69 & 575 & 748 & 752.39 & 756 & 1119 & 1120.01 & 1127 & 1848 & 1854.1 & 1857 & 3319 & 3322.59 & 3328 & 6256 & 6259.33 & 6265 & 12131 & 12133.32 & 12140 \\
+				\hline
+				ref & 386 & 389.95 & 397 & 464 & 468.23 & 475 & 541 & 547.01 & 552 & 697 & 704.04 & 708 & 1017 & 1018.23 & 1026 & 1640 & 1646.48 & 1651 & 2895 & 2903.16 & 2906 & 5412 & 5416.08 & 5423 & 10437 & 10442.29 & 10449 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
 \subsubsection{Crypto auth}
 
 Per la famiglia crypto auth sono state testate le implementazioni ARMv6-M, bi32, bi32 ARMv6-M, bi32 lowreg, opt32 e ref.
 
-Inserisci tabelle appena capisci come fare.
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconmacav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 115 & 116.26 & 124 & 117 & 119.39 & 126 & 120 & 120.88 & 128 & 124 & 125.65 & 133 & 170 & 171.42 & 178 & 260 & 262.85 & 269 & 405 & 409.96 & 414 & 698 & 703.25 & 707 & 1322 & 1325.78 & 1331 \\
+				\hline
+				bi32 & 176 & 178.92 & 185 & 180 & 182.82 & 189 & 184 & 186.74 & 193 & 192 & 194.53 & 201 & 260 & 262.53 & 269 & 396 & 400.94 & 407 & 619 & 624.05 & 627 & 1067 & 1067.52 & 1075 & 2010 & 2010.13 & 2011 \\
+				\hline
+				bi32 armv6m & 120 & 121.47 & 129 & 124 & 125.44 & 133 & 128 & 129.75 & 137 & 137 & 138.11 & 145 & 188 & 190.33 & 197 & 291 & 293.96 & 300 & 461 & 465.78 & 472 & 805 & 810.94 & 814 & 1532 & 1535.53 & 1541 \\
+				\hline
+				bi32 lowreg & 168 & 169.78 & 177 & 172 & 173.7 & 181 & 175 & 177.68 & 185 & 183 & 185.51 & 193 & 247 & 250.19 & 257 & 376 & 379.43 & 387 & 584 & 588.82 & 594 & 1009 & 1009.17 & 1012 & 1891 & 1898.16 & 1900 \\
+				\hline
+				opt32 & 153 & 155.49 & 162 & 155 & 159.89 & 166 & 158 & 161.05 & 168 & 162 & 164.5 & 172 & 219 & 221.97 & 230 & 333 & 338.17 & 344 & 513 & 517.08 & 524 & 874 & 881.65 & 884 & 1649 & 1656.68 & 1660 \\
+				\hline
+				ref & 167 & 169.0 & 176 & 172 & 174.48 & 181 & 178 & 179.86 & 186 & 188 & 190.53 & 197 & 259 & 261.61 & 268 & 400 & 405.75 & 409 & 635 & 641.03 & 644 & 1109 & 1110.56 & 1118 & 2101 & 2102.01 & 2110 \\
+				\hline
+				asconmacv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 115 & 116.1 & 126 & 117 & 118.94 & 128 & 120 & 120.93 & 130 & 177 & 178.87 & 188 & 239 & 241.64 & 250 & 363 & 366.17 & 373 & 610 & 616.65 & 621 & 1115 & 1116.69 & 1126 & 2114 & 2116.72 & 2126 \\
+				\hline
+				bi32 & 176 & 178.27 & 185 & 180 & 182.25 & 189 & 184 & 186.18 & 193 & 270 & 272.33 & 279 & 363 & 368.02 & 374 & 551 & 556.35 & 562 & 928 & 935.06 & 937 & 1687 & 1692.75 & 1696 & 3204 & 3207.5 & 3213 \\
+				\hline
+				bi32 armv6m & 120 & 121.58 & 129 & 124 & 125.56 & 133 & 128 & 130.07 & 137 & 187 & 189.52 & 196 & 255 & 257.69 & 263 & 389 & 393.43 & 398 & 661 & 665.21 & 670 & 1207 & 1209.45 & 1216 & 2294 & 2297.63 & 2303 \\
+				\hline
+				bi32 lowreg & 167 & 169.06 & 176 & 171 & 172.98 & 180 & 175 & 177.1 & 184 & 255 & 258.35 & 264 & 344 & 347.38 & 353 & 520 & 525.94 & 531 & 876 & 883.11 & 885 & 1590 & 1595.69 & 1601 & 3022 & 3023.18 & 3031 \\
+				\hline
+				opt32 & 153 & 154.63 & 162 & 155 & 156.86 & 164 & 158 & 159.27 & 166 & 235 & 237.53 & 244 & 317 & 320.24 & 326 & 481 & 486.88 & 492 & 811 & 817.44 & 821 & 1475 & 1479.06 & 1486 & 2799 & 2805.76 & 2808 \\
+				\hline
+				ref & 168 & 169.56 & 177 & 173 & 175.21 & 182 & 179 & 180.58 & 187 & 263 & 266.82 & 271 & 357 & 360.64 & 366 & 547 & 553.08 & 558 & 928 & 934.83 & 937 & 1695 & 1699.54 & 1704 & 3227 & 3228.83 & 3236 \\
+				\hline
+				asconprfav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 114 & 116.02 & 125 & 117 & 118.75 & 127 & 119 & 120.5 & 130 & 124 & 125.23 & 134 & 169 & 171.44 & 180 & 260 & 262.64 & 271 & 405 & 409.73 & 416 & 696 & 703.04 & 707 & 1322 & 1325.38 & 1333 \\
+				\hline
+				bi32 & 176 & 178.66 & 185 & 180 & 182.57 & 189 & 184 & 186.46 & 193 & 192 & 194.28 & 201 & 260 & 262.4 & 270 & 396 & 400.86 & 407 & 617 & 623.7 & 627 & 1066 & 1067.73 & 1075 & 2010 & 2010.13 & 2013 \\
+				\hline
+				bi32 armv6m & 120 & 121.54 & 129 & 124 & 125.49 & 133 & 128 & 129.72 & 136 & 137 & 138.09 & 145 & 188 & 190.29 & 197 & 291 & 294.1 & 301 & 461 & 465.68 & 472 & 805 & 810.94 & 814 & 1530 & 1535.44 & 1541 \\
+				\hline
+				bi32 lowreg & 168 & 169.75 & 177 & 172 & 173.58 & 182 & 175 & 177.48 & 186 & 183 & 185.37 & 194 & 247 & 250.09 & 258 & 376 & 379.43 & 386 & 584 & 588.63 & 595 & 1009 & 1009.24 & 1017 & 1891 & 1898.2 & 1900 \\
+				\hline
+				opt32 & 153 & 154.76 & 162 & 155 & 160.16 & 164 & 158 & 162.22 & 166 & 162 & 165.32 & 171 & 219 & 223.08 & 228 & 334 & 339.62 & 344 & 515 & 517.99 & 525 & 879 & 885.34 & 887 & 1658 & 1664.64 & 1668 \\
+				\hline
+				ref & 166 & 167.87 & 175 & 172 & 173.37 & 181 & 177 & 178.84 & 186 & 188 & 189.6 & 197 & 258 & 260.96 & 267 & 400 & 405.36 & 410 & 633 & 640.42 & 644 & 1109 & 1109.98 & 1118 & 2100 & 2101.57 & 2109 \\
+				\hline
+				asconprfv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 114 & 115.99 & 123 & 117 & 118.61 & 126 & 119 & 120.64 & 128 & 176 & 178.49 & 185 & 238 & 241.31 & 248 & 362 & 366.02 & 373 & 610 & 616.36 & 621 & 1115 & 1116.37 & 1123 & 2115 & 2116.54 & 2124 \\
+				\hline
+				bi32 & 176 & 178.52 & 186 & 180 & 182.44 & 190 & 184 & 186.37 & 194 & 270 & 272.69 & 280 & 363 & 368.02 & 374 & 551 & 556.76 & 562 & 928 & 935.09 & 937 & 1685 & 1692.57 & 1696 & 3204 & 3207.29 & 3215 \\
+				\hline
+				bi32 armv6m & 120 & 121.47 & 129 & 124 & 125.54 & 133 & 128 & 130.17 & 137 & 187 & 189.48 & 197 & 255 & 257.59 & 265 & 389 & 393.45 & 400 & 659 & 665.27 & 670 & 1207 & 1209.37 & 1216 & 2294 & 2297.42 & 2305 \\
+				\hline
+				bi32 lowreg & 167 & 169.13 & 176 & 171 & 172.89 & 180 & 175 & 177.11 & 184 & 255 & 258.45 & 266 & 344 & 347.44 & 355 & 520 & 525.97 & 531 & 876 & 883.16 & 885 & 1590 & 1595.7 & 1601 & 3022 & 3023.23 & 3031 \\
+				\hline
+				opt32 & 153 & 153.89 & 163 & 156 & 156.6 & 166 & 158 & 159.8 & 169 & 235 & 237.88 & 246 & 317 & 319.44 & 328 & 481 & 485.99 & 492 & 808 & 816.16 & 819 & 1472 & 1477.88 & 1483 & 2791 & 2800.83 & 2803 \\
+				\hline
+				ref & 167 & 169.22 & 177 & 173 & 174.84 & 183 & 178 & 180.1 & 188 & 262 & 265.03 & 273 & 356 & 360.05 & 367 & 545 & 551.08 & 556 & 925 & 932.66 & 935 & 1689 & 1695.43 & 1700 & 3219 & 3221.91 & 3230 \\
+				\hline
+				asconprfsv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 61 & 62.16 & 70 & 63 & 63.9 & 72 & 64 & 64.67 & 73 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 & 98 & 99.09 & 106 & 101 & 102.37 & 110 & 103 & 105.1 & 112 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 armv6m & 68 & 68.77 & 77 & 71 & 72.1 & 79 & 73 & 75.3 & 82 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 lowreg & 93 & 95.12 & 104 & 97 & 98.24 & 107 & 99 & 100.59 & 110 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt32 & 83 & 84.12 & 91 & 85 & 85.79 & 93 & 85 & 86.8 & 94 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 92 & 93.3 & 101 & 96 & 97.37 & 105 & 100 & 101.19 & 110 & & & & & & & & & & & & & & & & & & \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconmacav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 236 & 238.72 & 245 & 241 & 243.79 & 250 & 246 & 248.35 & 255 & 255 & 257.38 & 264 & 346 & 349.09 & 355 & 527 & 531.64 & 538 & 820 & 825.24 & 829 & 1408 & 1411.91 & 1417 & 2653 & 2657.03 & 2662 \\
+				\hline
+				bi32 & 359 & 362.31 & 367 & 366 & 370.21 & 375 & 374 & 378.13 & 383 & 390 & 394.85 & 400 & 527 & 531.75 & 538 & 801 & 807.16 & 810 & 1249 & 1250.62 & 1258 & 2140 & 2141.9 & 2149 & 4026 & 4026.58 & 4029 \\
+				\hline
+				bi32 armv6m & 247 & 249.05 & 255 & 255 & 257.2 & 264 & 263 & 265.53 & 272 & 280 & 282.72 & 289 & 383 & 386.46 & 392 & 590 & 593.62 & 599 & 932 & 938.41 & 941 & 1624 & 1627.66 & 1633 & 3076 & 3076.73 & 3079 \\
+				\hline
+				bi32 lowreg & 342 & 345.38 & 353 & 350 & 353.19 & 360 & 358 & 361.01 & 368 & 373 & 376.68 & 384 & 501 & 506.78 & 512 & 758 & 764.84 & 769 & 1183 & 1185.09 & 1192 & 2024 & 2024.67 & 2027 & 3794 & 3801.36 & 3805 \\
+				\hline
+				opt32 & 313 & 315.44 & 323 & 318 & 319.48 & 328 & 322 & 324.18 & 333 & 332 & 333.27 & 342 & 445 & 448.3 & 456 & 673 & 677.65 & 684 & 1042 & 1042.3 & 1045 & 1762 & 1769.84 & 1772 & 3314 & 3317.26 & 3325 \\
+				\hline
+				ref & 341 & 343.3 & 350 & 352 & 354.03 & 360 & 362 & 364.89 & 371 & 384 & 387.53 & 392 & 525 & 530.56 & 535 & 809 & 813.42 & 818 & 1283 & 1285.12 & 1292 & 2225 & 2229.24 & 2234 & 4208 & 4210.45 & 4217 \\
+				\hline
+				asconmacv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 236 & 238.85 & 247 & 241 & 243.18 & 252 & 246 & 247.99 & 257 & 360 & 363.3 & 371 & 484 & 488.22 & 495 & 732 & 738.84 & 743 & 1236 & 1238.85 & 1247 & 2236 & 2238.65 & 2248 & 4236 & 4240.07 & 4248 \\
+				\hline
+				bi32 & 359 & 362.97 & 368 & 367 & 370.79 & 376 & 374 & 378.65 & 384 & 546 & 551.44 & 557 & 736 & 740.12 & 745 & 1118 & 1119.03 & 1127 & 1870 & 1875.94 & 1879 & 3387 & 3389.97 & 3397 & 6415 & 6419.98 & 6426 \\
+				\hline
+				bi32 armv6m & 247 & 249.33 & 255 & 255 & 257.11 & 264 & 263 & 265.82 & 272 & 381 & 385.0 & 390 & 516 & 520.97 & 526 & 787 & 793.01 & 796 & 1334 & 1336.83 & 1342 & 2421 & 2424.55 & 2430 & 4597 & 4600.59 & 4606 \\
+				\hline
+				bi32 lowreg & 341 & 344.45 & 350 & 348 & 352.08 & 357 & 356 & 359.85 & 365 & 517 & 522.16 & 528 & 696 & 700.43 & 705 & 1057 & 1057.49 & 1060 & 1766 & 1770.97 & 1775 & 3196 & 3198.02 & 3205 & 6051 & 6052.49 & 6055 \\
+				\hline
+				opt32 & 313 & 315.45 & 322 & 318 & 320.58 & 327 & 323 & 325.56 & 331 & 477 & 481.18 & 488 & 643 & 647.72 & 652 & 971 & 978.61 & 980 & 1637 & 1641.77 & 1646 & 2959 & 2964.76 & 2968 & 5611 & 5615.32 & 5622 \\
+				\hline
+				ref & 343 & 345.7 & 352 & 353 & 356.25 & 362 & 364 & 366.85 & 373 & 532 & 536.57 & 543 & 724 & 728.81 & 733 & 1110 & 1110.66 & 1119 & 1870 & 1876.08 & 1879 & 3401 & 3406.5 & 3411 & 6460 & 6465.88 & 6470 \\
+				\hline
+				asconprfav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 236 & 238.37 & 247 & 241 & 243.25 & 251 & 245 & 247.6 & 256 & 255 & 256.54 & 266 & 345 & 348.54 & 356 & 526 & 530.85 & 537 & 817 & 824.99 & 828 & 1407 & 1411.61 & 1418 & 2651 & 2656.67 & 2662 \\
+				\hline
+				bi32 & 359 & 362.42 & 369 & 366 & 370.33 & 377 & 374 & 378.27 & 385 & 390 & 394.7 & 401 & 527 & 531.72 & 537 & 799 & 807.35 & 810 & 1249 & 1250.98 & 1260 & 2139 & 2141.68 & 2150 & 4026 & 4026.62 & 4030 \\
+				\hline
+				bi32 armv6m & 247 & 248.96 & 257 & 255 & 257.14 & 265 & 263 & 265.54 & 273 & 280 & 282.65 & 290 & 383 & 386.27 & 393 & 588 & 593.55 & 599 & 932 & 938.41 & 941 & 1622 & 1627.79 & 1633 & 3076 & 3076.71 & 3079 \\
+				\hline
+				bi32 lowreg & 342 & 345.53 & 353 & 350 & 353.38 & 361 & 358 & 361.21 & 369 & 373 & 376.91 & 384 & 501 & 506.95 & 512 & 758 & 764.75 & 769 & 1183 & 1184.97 & 1193 & 2024 & 2024.7 & 2027 & 3794 & 3801.21 & 3805 \\
+				\hline
+				opt32 & 313 & 315.44 & 322 & 317 & 319.99 & 327 & 322 & 324.41 & 332 & 331 & 333.45 & 340 & 446 & 448.98 & 456 & 675 & 679.55 & 685 & 1046 & 1046.12 & 1048 & 1771 & 1776.94 & 1780 & 3331 & 3333.76 & 3340 \\
+				\hline
+				ref & 340 & 343.02 & 350 & 350 & 353.66 & 361 & 361 & 364.32 & 371 & 382 & 386.56 & 393 & 524 & 529.44 & 534 & 808 & 812.63 & 817 & 1282 & 1283.95 & 1292 & 2224 & 2227.74 & 2233 & 4207 & 4209.77 & 4216 \\
+				\hline
+				asconprfv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 236 & 238.23 & 245 & 241 & 242.92 & 250 & 245 & 247.54 & 256 & 360 & 362.98 & 371 & 484 & 487.83 & 494 & 731 & 738.32 & 742 & 1236 & 1238.5 & 1245 & 2236 & 2238.24 & 2245 & 4236 & 4239.42 & 4247 \\
+				\hline
+				bi32 & 359 & 363.25 & 370 & 367 & 371.07 & 378 & 374 & 378.78 & 385 & 546 & 551.02 & 557 & 734 & 740.4 & 745 & 1118 & 1118.87 & 1127 & 1870 & 1875.96 & 1879 & 3387 & 3390.44 & 3398 & 6415 & 6420.38 & 6426 \\
+				\hline
+				bi32 armv6m & 247 & 249.27 & 257 & 255 & 257.21 & 265 & 263 & 265.74 & 274 & 381 & 384.91 & 392 & 516 & 520.96 & 527 & 786 & 792.93 & 796 & 1334 & 1336.82 & 1344 & 2421 & 2424.6 & 2432 & 4595 & 4600.8 & 4606 \\
+				\hline
+				bi32 lowreg & 341 & 344.52 & 351 & 348 & 352.24 & 359 & 356 & 359.84 & 367 & 517 & 522.15 & 528 & 694 & 700.4 & 705 & 1057 & 1057.47 & 1061 & 1764 & 1771.02 & 1775 & 3196 & 3197.97 & 3205 & 6052 & 6052.46 & 6055 \\
+				\hline
+				opt32 & 313 & 317.39 & 324 & 318 & 321.85 & 329 & 323 & 326.28 & 334 & 477 & 482.03 & 488 & 641 & 647.07 & 652 & 969 & 977.55 & 979 & 1632 & 1639.45 & 1643 & 2952 & 2960.32 & 2963 & 5598 & 5604.49 & 5610 \\
+				\hline
+				ref & 342 & 345.02 & 352 & 352 & 355.55 & 362 & 363 & 366.08 & 373 & 531 & 535.63 & 541 & 720 & 726.25 & 730 & 1107 & 1107.72 & 1116 & 1863 & 1871.32 & 1874 & 3393 & 3397.99 & 3404 & 6445 & 6450.28 & 6457 \\
+				\hline
+                asconprfsv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				armv6m & 130 & 131.0 & 140 & 133 & 134.34 & 144 & 135 & 136.01 & 145 & & & & & & & & & & & & & & & & & &\\
+				\hline
+				bi32 & 202 & 204.53 & 211 & 209 & 211.31 & 218 & 214 & 216.55 & 223 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 armv6m & 143 & 144.62 & 152 & 150 & 150.71 & 158 & 154 & 156.19 & 163 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				bi32 lowreg & 194 & 195.75 & 204 & 200 & 202.49 & 211 & 205 & 207.09 & 216 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt32 & 173 & 174.71 & 182 & 176 & 178.05 & 187 & 178 & 179.91 & 188 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 191 & 192.46 & 200 & 199 & 200.84 & 209 & 207 & 208.83 & 217 & & & & & & & & & & & & & & & & & & \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
 \subsection{Arduino Due}
 
