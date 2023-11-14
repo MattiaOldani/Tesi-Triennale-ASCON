@@ -55,7 +55,7 @@
 % Sistema note a pié di pagina nelle tabelle
 \usepackage{footnote}
 \makesavenoteenv{tabular}
-\makesavenoteenv{table}
+\usepackage{float}
 
 % Package ipertesto
 \usepackage{url}					% Visualizza e rendere interattii gli URL
@@ -75,9 +75,9 @@
 
 % Dedica
 \prefacesection{Ringraziamenti} I miei ringraziamenti
-	
+
 \afterpreface
-	
+
 \listoftodos
 
 \chapter{Introduzione}
@@ -102,7 +102,7 @@ Negli ultimi anni ha preso sempre più piede la tecnologia IoT, spinta dai dispo
 
 \section{Differenze con le macchine ad alte prestazioni}
 
-La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle macchine ad alte prestazioni, è rappresentata dalle prestazioni che essi offrono: infatti, se consideriamo i principali cifrari presenti nelle più famose librerie standard, come OpenSSL oppure WolfSSL, le caratteristiche hardware dei dispositivi IoT rallentano di molto l'esecuzione delle API presenti nelle librerie. 
+La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle macchine ad alte prestazioni, è rappresentata dalle prestazioni che essi offrono: infatti, se consideriamo i principali cifrari presenti nelle più famose librerie standard, come OpenSSL oppure WolfSSL, le caratteristiche hardware dei dispositivi IoT rallentano di molto l'esecuzione delle API presenti nelle librerie.
 
 \section{Vincoli}
 
@@ -121,11 +121,11 @@ La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle ma
 \chapter{Testing e analisi}
 
 % "in precedenza" perchè nel capitolo 3 spiego le famiglie e tutto il resto
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS".
+Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS".
 
 \section{Suite di test}
 
-Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di un dato algoritmo di una data famiglia, usando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain-text e dati associati di grandezze minime, massime (secondo i test definiti da ASCON) e intermedie significative.
+Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di un dato algoritmo di una data famiglia, usando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain-text e dati associati di grandezze minime, massime – secondo i test definiti da ASCON – e intermedie significative.
 
 \subsection{Pseudocodice}
 
@@ -136,7 +136,7 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \begin{algorithmic}[1]
         \Require{Lunghezza $mlen$ del plain-text.}
         \Require{Lunghezza $adlen$ dei dati associati (solo AEAD).}
-        
+
         \LComment{Generazione di chiave, nonce e dati associati.}
         \State $key \gets$ \Call{GENERATE\_KEY}{$klen$}
         \State $nonce \gets$ \Call{GENERATE\_NONCE}{$nlen$}
@@ -173,7 +173,7 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
             \State \phantom{}
 
             \LComment{Decifratura e misura del tempo di esecuzione.}
-            \State $ct, error \gets$ \Call{DECRYPT}{$pt, \, key, \, nonce, \, ad$}
+            \State $pt, error \gets$ \Call{DECRYPT}{$ct, \, key, \, nonce, \, ad$}
             \State $time \gets$ \Call{GET\_TIME}{} - time
             \State \phantom{}
 
@@ -203,9 +203,27 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \end{algorithmic}
 \end{algorithm}
 
+\noindent L'header di ogni file CSV è formato da celle nel formato "\textit{NB-M}", con:
+\begin{itemize}
+    \item $N$: grandezza in byte del plain-text testato;
+    \item $B$: byte;
+    \item $M$: modalità, che per AEAD può essere $E$ (encryption) oppure $D$ (decryption), per autenticazione può essere $A$ (authentication) oppure $V$ (verify) mentre per hash questo campo non è presente.
+\end{itemize}
+
+\noindent Un esempio di header AEAD è il seguente.
+
+\begin{table}[H]
+    \centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		0B-E & 0B-D & 1B-E & 1B-D & 8B-E & 8B-D \\
+		\hline
+    \end{tabular}
+\end{table}
+
 \subsection{Arduino IDE}
 
-Per le board prive di sistema operativo il file di test veniva prima inserito in un progetto Arduino con i file di una data implementazione di un dato algoritmo di una data famiglia, poi compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board rimasta, il file di test e i file di una data implementazione di un dato algoritmo di una data famiglia venivano messi in una cartella, trasferiti sulla board tramite $scp$, compilati con il compilatore $gcc$ e infine eseguiti.
+Per le board prive di sistema operativo il file di test veniva dapprima inserito in un progetto Arduino con i file di una data implementazione di un dato algoritmo di una data famiglia, successivamente compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board rimasta, il file di test e i file di una data implementazione di un dato algoritmo di una data famiglia venivano messi in una cartella, trasferiti sulla board tramite \textit{scp}, compilati con il compilatore \textit{gcc} e infine eseguiti.
 
 \subsection{Raccolta dei risultati}
 
@@ -237,7 +255,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("port")
-    
+
     args = parser.parse_args()
     main(args.filename, args.port)
 \end{python}
@@ -246,17 +264,32 @@ if __name__ == "__main__":
 
 \section{Dispositivi utilizzati}
 
-Come detto prima, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
+Come detto prima, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. \\
+
+\noindent Le tabelle seguenti sono organizzate nel seguente modo:
+\begin{itemize}
+    \item header: contiene celle nel formato "\textit{N-V}", dove:
+    \begin{itemize}
+        \item $N$: grandezza in byte del plain-text testato;
+        \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
+        \begin{itemize}
+            \item "m": valore minimo;
+            \item "a": valore medio;
+            \item "M": valore massimo.
+        \end{itemize}
+    \end{itemize}
+    \item righe: contiene il nome dell'algoritmo da testare e una serie di colonne vuote oppure il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti.
+\end{itemize}
+
+\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti due tabelle: nella prima ci sono i tempi di esecuzione durante la fase di cifratura/autenticazione, mentra nelle seconda ci sono i tempi di esecuzione durante la fase di decifratura/verifica. Per la famiglia hash invece è presente una sola tabella, con i tempi di esecuzione delle funzioni hash in esame.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
-La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21G18 Cortex M0+ a 48 MHz, 256 KB di flash e 32 KB di memoria RAM.\cite{adafruit} L'architettura della board è ARMv6m, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
+La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21G18 Cortex M0+ a 48 MHz, 256 KB di flash e 32 KB di memoria RAM.\cite{adafruit} L'architettura della board è ARMv6-M, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
 
 \subsubsection{Crypto AEAD}
 
-Per la famiglia crypto AEAD sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
-
-Spiegazione tabelle + come sono organizzate e perchè.
+Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -414,7 +447,7 @@ Spiegazione tabelle + come sono organizzate e perchè.
 
 \subsubsection{Crypto hash}
 
-Per la famiglia crypto hash sono state testate le implementazioni ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -535,7 +568,7 @@ Per la famiglia crypto hash sono state testate le implementazioni ARMv6-M, ARMv6
 
 \subsubsection{Crypto auth}
 
-Per la famiglia crypto auth sono state testate le implementazioni ARMv6-M, bi32, bi32 ARMv6-M, bi32 lowreg, opt32 e ref.
+Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, bi32, bi32 ARMv6-M, bi32 lowreg, opt32 e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -705,9 +738,11 @@ Per la famiglia crypto auth sono state testate le implementazioni ARMv6-M, bi32,
 
 \subsection{Arduino Due}
 
+La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel SAM3X8E ARM Cortex-M3.\cite{arduino} L'architettura della board è ARMv7-M, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
+
 \subsubsection{Crypto AEAD}
 
-Per la famiglia crypto AEAD sono state testate le implementazioni ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -873,7 +908,7 @@ Per la famiglia crypto AEAD sono state testate le implementazioni ARMv7-M, ARMv7
 
 \subsubsection{Crypto hash}
 
-Per la famiglia crypto hash sono state testate le implementazioni ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -1002,7 +1037,7 @@ Per la famiglia crypto hash sono state testate le implementazioni ARMv7-M, ARMv7
 
 \subsubsection{Crypto auth}
 
-Per la famiglia crypto auth sono state testate le implementazioni ARMv7-M, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, opt32 e ref.
+Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, opt32 e ref.
 
 \begin{landscape}
     \begin{table}[]
@@ -1190,9 +1225,13 @@ Per la famiglia crypto auth sono state testate le implementazioni ARMv7-M, ARMv7
 	\end{table}
 \end{landscape}
 
-\subsection{Raspberry qualcosa}
+\subsection{RaspberryPi model 3B}
 
-Una subsubsection per ogni famiglia con i risultati
+\subsubsection{Crypto AEAD}
+
+\subsubsection{Crypto hash}
+
+\subsubsection{Crypto auth}
 
 \newpage
 
