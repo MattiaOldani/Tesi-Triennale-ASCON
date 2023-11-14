@@ -273,12 +273,12 @@ Come detto prima, l'attività di testing è stata eseguita su tre dispositivi Io
         \item $N$: grandezza in byte del plain-text testato;
         \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
         \begin{itemize}
-            \item "m": valore minimo;
-            \item "a": valore medio;
-            \item "M": valore massimo.
+            \item m: valore minimo;
+            \item a: valore medio;
+            \item M: valore massimo.
         \end{itemize}
     \end{itemize}
-    \item righe: contiene il nome dell'algoritmo da testare e una serie di colonne vuote oppure il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti.
+    \item righe: contiene il nome dell'algoritmo da testare e una serie di colonne vuote oppure il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
 \end{itemize}
 
 \noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti due tabelle: nella prima ci sono i tempi di esecuzione durante la fase di cifratura/autenticazione, mentra nelle seconda ci sono i tempi di esecuzione durante la fase di decifratura/verifica. Per la famiglia hash invece è presente una sola tabella, con i tempi di esecuzione delle funzioni hash in esame.
@@ -1227,11 +1227,250 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \subsection{RaspberryPi model 3B}
 
+L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2GHz Broadcom BCM2837 con 1GB di RAM.\cite{raspberry} L'architettura della board non è presente nelle ottimizzazioni possibili fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
+
+\noindent Nelle tabelle sono presenti numerose celle con valore $1$: la quasi totalità di queste in realtà dovrebbero contenere $0$, questo perché la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo, che quindi la suite di test non riesce a rilevare. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
+
 \subsubsection{Crypto AEAD}
+
+Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64, opt64 lowsize e ref.
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 24-m & 24-a & 24-M & 32-m & 32-a & 32-M \\
+				\hline
+				ascon80pqv12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 lowsize & 1 & 1.27 & 23 & 1 & 1.71 & 33 & 2 & 2.23 & 93 & 2 & 2.52 & 15 & 2 & 3.0 & 44 & 3 & 3.63 & 262 \\
+				\hline
+				opt64 & 1 & 1.01 & 5 & 1 & 1.16 & 24 & 1 & 1.17 & 11 & 1 & 1.26 & 4 & 1 & 1.36 & 12 & 1 & 1.63 & 46 \\
+				\hline
+				ref & 1 & 1.05 & 32 & 1 & 1.31 & 105 & 1 & 1.55 & 12 & 1 & 1.85 & 12 & 1 & 2.29 & 120 & 1 & 2.51 & 13 \\
+				\hline
+				ascon128abi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 2.06 & 99 & 2 & 2.51 & 34 & 3 & 3.84 & 15 & 4 & 4.64 & 41 & 5 & 5.53 & 18 & 6 & 6.7 & 41 \\
+				\hline
+				ascon128av12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.14 & 10 & 1 & 1.48 & 11 & 2 & 2.35 & 129 & 2 & 2.67 & 42 & 2 & 3.25 & 100 & 3 & 3.72 & 105 \\
+				\hline
+				opt64 lowsize & 1 & 1.01 & 6 & 1 & 1.01 & 6 & 1 & 1.23 & 46 & 1 & 1.47 & 6 & 1 & 1.78 & 17 & 1 & 2.06 & 7 \\
+				\hline
+				opt64 & 1 & 1.01 & 8 & 1 & 1.55 & 11 & 1 & 1.82 & 40 & 2 & 2.28 & 34 & 2 & 2.63 & 38 & 2 & 3.02 & 37 \\
+				\hline
+				ascon128bi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 2.12 & 28 & 2 & 2.76 & 36 & 3 & 3.46 & 34 & 3 & 4.14 & 45 & 4 & 4.84 & 46 & 5 & 5.55 & 38 \\
+				\hline
+				ascon128v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.07 & 11 & 1 & 1.29 & 11 & 1 & 1.67 & 11 & 1 & 2.02 & 12 & 2 & 2.37 & 12 & 2 & 2.84 & 61 \\
+				\hline
+				opt64 lowsize & 1 & 1.24 & 10 & 1 & 1.66 & 34 & 2 & 2.08 & 12 & 2 & 2.49 & 12 & 2 & 3.02 & 40 & 3 & 3.39 & 39 \\
+				\hline
+				opt64 & 1 & 1.04 & 10 & 1 & 1.2 & 12 & 1 & 1.31 & 10 & 1 & 1.6 & 10 & 1 & 1.95 & 11 & 2 & 2.27 & 12 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 24-m & 24-a & 24-M & 32-m & 32-a & 32-M \\
+				\hline
+				ascon80pqv12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 lowsize & 2 & 2.55 & 27 & 3 & 3.21 & 12 & 4 & 4.16 & 35 & 4 & 5.12 & 15 & 5 & 6.41 & 351 & 6 & 6.86 & 29 \\
+				\hline
+				opt64 & 1 & 1.26 & 12 & 1 & 1.62 & 14 & 1 & 1.88 & 51 & 1 & 2.26 & 13 & 1 & 2.67 & 14 & 2 & 3.14 & 38 \\
+				\hline
+				ref & 1 & 1.8 & 12 & 1 & 2.18 & 13 & 1 & 2.89 & 40 & 1 & 3.51 & 24 & 2 & 4.26 & 102 & 2 & 5.04 & 78 \\
+				\hline
+				ascon128abi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 3 & 3.66 & 40 & 4 & 5.06 & 30 & 6 & 7.36 & 40 & 8 & 9.1 & 43 & 10 & 11.03 & 44 & 12 & 13.14 & 72 \\
+				\hline
+				ascon128av12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 2 & 2.35 & 97 & 2 & 2.8 & 12 & 3 & 4.2 & 185 & 4 & 5.06 & 113 & 5 & 6.08 & 17 & 6 & 7.34 & 136 \\
+				\hline
+				opt64 lowsize & 1 & 1.24 & 7 & 1 & 1.67 & 24 & 2 & 2.31 & 27 & 2 & 2.99 & 22 & 3 & 3.62 & 52 & 4 & 4.11 & 22 \\
+				\hline
+				opt64 & 1 & 1.69 & 26 & 2 & 2.53 & 13 & 3 & 3.17 & 14 & 3 & 4.17 & 99 & 4 & 4.8 & 17 & 5 & 5.57 & 16 \\
+				\hline
+				ascon128bi32v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 3 & 4.24 & 35 & 5 & 5.28 & 31 & 6 & 7.13 & 18 & 7 & 8.53 & 106 & 9 & 9.64 & 34 & 10 & 11.18 & 83 \\
+				\hline
+				ascon128v12 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 2 & 2.32 & 94 & 2 & 2.72 & 41 & 3 & 3.52 & 14 & 4 & 4.28 & 16 & 4 & 5.13 & 43 & 5 & 5.82 & 42 \\
+				\hline
+				opt64 lowsize & 2 & 2.59 & 90 & 3 & 3.21 & 25 & 3 & 4.08 & 29 & 4 & 5.21 & 36 & 5 & 6.07 & 43 & 6 & 6.79 & 35 \\
+				\hline
+				opt64 & 1 & 1.6 & 23 & 2 & 2.64 & 13 & 2 & 2.75 & 38 & 3 & 3.39 & 27 & 3 & 4.24 & 130 & 4 & 4.58 & 31 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
 \subsubsection{Crypto hash}
 
+Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64, opt64 lowsize e ref.
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconhashabi32v12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 3 & 3.37 & 16 & 3 & 3.76 & 14 & 4 & 4.26 & 27 & 4 & 5.16 & 15 & 6 & 7.03 & 59 & 10 & 10.46 & 43 & 17 & 17.89 & 167 & 31 & 32.14 & 208 & 58 & 60.67 & 120 \\
+				\hline
+				asconhashav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.46 & 11 & 1 & 1.7 & 40 & 1 & 1.91 & 12 & 2 & 2.37 & 11 & 3 & 3.38 & 33 & 5 & 5.32 & 38 & 8 & 9.17 & 96 & 16 & 17.22 & 368 & 31 & 32.63 & 289 \\
+				\hline
+				opt64 lowsize & 1 & 1.54 & 22 & 1 & 1.78 & 19 & 1 & 2.18 & 85 & 2 & 2.63 & 13 & 3 & 3.75 & 24 & 5 & 6.06 & 16 & 9 & 10.58 & 53 & 18 & 19.66 & 52 & 35 & 37.62 & 80 \\
+				\hline
+				opt64 & 1 & 1.21 & 27 & 1 & 1.43 & 25 & 1 & 1.67 & 11 & 1 & 2.11 & 105 & 2 & 2.82 & 25 & 4 & 4.43 & 14 & 7 & 7.67 & 31 & 13 & 14.44 & 154 & 26 & 27.07 & 124 \\
+				\hline
+				asconhashbi32v12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 3 & 3.89 & 26 & 4 & 4.6 & 14 & 5 & 5.26 & 17 & 6 & 6.67 & 29 & 9 & 9.36 & 33 & 14 & 14.67 & 41 & 24 & 25.54 & 59 & 45 & 47.11 & 98 & 87 & 90.13 & 129 \\
+				\hline
+				asconhashv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 2 & 2.14 & 12 & 2 & 2.55 & 26 & 2 & 2.85 & 13 & 3 & 3.55 & 26 & 4 & 5.01 & 27 & 7 & 7.91 & 39 & 13 & 13.73 & 39 & 24 & 25.09 & 92 & 46 & 48.29 & 101 \\
+				\hline
+				opt64 lowsize & 1 & 1.9 & 22 & 2 & 2.22 & 11 & 2 & 2.6 & 13 & 3 & 3.46 & 12 & 4 & 5.02 & 14 & 8 & 8.16 & 29 & 14 & 14.71 & 44 & 26 & 27.49 & 60 & 51 & 53.21 & 98 \\
+				\hline
+				opt64 & 1 & 1.53 & 34 & 1 & 1.84 & 25 & 2 & 2.18 & 24 & 2 & 2.77 & 14 & 3 & 3.88 & 13 & 6 & 6.37 & 16 & 10 & 11.21 & 43 & 20 & 21.02 & 59 & 39 & 40.64 & 128 \\
+				\hline
+				asconxofav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.35 & 10 & 1 & 1.6 & 10 & 1 & 1.93 & 94 & 2 & 2.33 & 12 & 3 & 3.3 & 25 & 5 & 5.23 & 27 & 8 & 9.08 & 40 & 16 & 16.78 & 59 & 31 & 32.16 & 80 \\
+				\hline
+				opt64 lowsize & 1 & 1.51 & 11 & 1 & 1.84 & 34 & 1 & 2.13 & 12 & 2 & 2.64 & 32 & 3 & 3.82 & 23 & 5 & 6.14 & 37 & 9 & 10.63 & 35 & 18 & 19.57 & 61 & 35 & 37.5 & 79 \\
+				\hline
+				opt64 & 1 & 1.3 & 22 & 1 & 1.48 & 11 & 1 & 1.68 & 10 & 1 & 2.11 & 13 & 2 & 2.88 & 12 & 4 & 4.58 & 38 & 7 & 7.9 & 102 & 13 & 14.21 & 37 & 26 & 27.18 & 63 \\
+				\hline
+				asconxofv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 2 & 2.14 & 12 & 2 & 2.6 & 34 & 2 & 2.94 & 32 & 3 & 3.55 & 13 & 4 & 5.0 & 15 & 7 & 7.96 & 42 & 13 & 13.75 & 45 & 24 & 25.35 & 146 & 46 & 48.18 & 82 \\
+				\hline
+				opt64 lowsize & 1 & 1.87 & 12 & 2 & 2.46 & 212 & 2 & 2.66 & 24 & 3 & 3.55 & 44 & 4 & 5.14 & 32 & 8 & 8.27 & 29 & 14 & 14.64 & 62 & 26 & 27.57 & 51 & 51 & 53.23 & 137 \\
+				\hline
+				opt64 & 1 & 1.58 & 13 & 1 & 1.85 & 17 & 2 & 2.16 & 12 & 2 & 2.7 & 11 & 3 & 3.97 & 36 & 6 & 6.51 & 29 & 10 & 11.2 & 44 & 20 & 20.91 & 54 & 39 & 40.21 & 81 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
+
 \subsubsection{Crypto auth}
+
+Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64 e ref.
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconmacav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.14 & 20 & 1 & 1.14 & 10 & 1 & 1.16 & 23 & 1 & 1.17 & 10 & 1 & 1.67 & 89 & 2 & 2.12 & 23 & 2 & 3.11 & 13 & 4 & 5.21 & 30 & 9 & 9.45 & 31 \\
+				\hline
+				opt64 & 1 & 1.02 & 11 & 1 & 1.02 & 10 & 1 & 1.04 & 32 & 1 & 1.07 & 25 & 1 & 1.31 & 10 & 1 & 1.86 & 34 & 2 & 2.81 & 27 & 4 & 4.67 & 38 & 8 & 8.63 & 48 \\
+				\hline
+				asconmacv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 & 1 & 1.05 & 10 & 1 & 1.03 & 10 & 1 & 1.04 & 10 & 1 & 1.5 & 11 & 1 & 1.86 & 11 & 2 & 2.66 & 27 & 4 & 4.21 & 26 & 7 & 7.29 & 29 & 13 & 13.73 & 77 \\
+				\hline
+				ref & 1 & 1.01 & 5 & 1 & 1.0 & 2 & 1 & 1.0 & 1 & 1 & 1.01 & 6 & 1 & 1.02 & 5 & 1 & 1.45 & 14 & 2 & 2.3 & 8 & 3 & 4.05 & 9 & 7 & 7.56 & 25 \\
+				\hline
+				asconprfav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.12 & 11 & 1 & 1.17 & 35 & 1 & 1.12 & 2 & 1 & 1.21 & 11 & 1 & 1.58 & 3 & 2 & 2.22 & 24 & 3 & 3.17 & 29 & 4 & 5.29 & 35 & 9 & 9.66 & 137 \\
+				\hline
+				opt64 & 1 & 1.04 & 10 & 1 & 1.0 & 2 & 1 & 1.04 & 10 & 1 & 1.02 & 10 & 1 & 1.26 & 3 & 1 & 1.85 & 11 & 2 & 2.74 & 26 & 4 & 4.7 & 33 & 8 & 8.74 & 87 \\
+				\hline
+				asconprfsv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.01 & 9 & 1 & 1.02 & 9 & 1 & 1.01 & 9 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 & 1 & 1.04 & 36 & 1 & 1.08 & 70 & 1 & 1.01 & 9 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				asconprfv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.02 & 5 & 1 & 1.01 & 6 & 1 & 1.0 & 1 & 1 & 1.02 & 18 & 1 & 1.02 & 6 & 1 & 1.45 & 6 & 2 & 2.35 & 13 & 3 & 4.08 & 20 & 7 & 7.57 & 23 \\
+				\hline
+				opt64 & 1 & 1.03 & 11 & 1 & 1.02 & 12 & 1 & 1.04 & 22 & 1 & 1.34 & 10 & 1 & 1.73 & 34 & 2 & 2.58 & 36 & 3 & 4.06 & 14 & 6 & 7.1 & 31 & 13 & 13.52 & 101 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
+
+\begin{landscape}
+    \begin{table}[]
+        \begin{adjustbox}{width=600pt}
+            \centering
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				& 0-m & 0-a & 0-M & 8-m & 8-a & 8-M & 16-m & 16-a & 16-M & 32-m & 32-a & 32-M & 64-m & 64-a & 64-M & 128-m & 128-a & 128-M & 256-m & 256-a & 256-M & 512-m & 512-a & 512-M & 1024-m & 1024-a & 1024-M \\
+				\hline
+				asconmacav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 2.15 & 24 & 2 & 2.19 & 35 & 2 & 2.19 & 34 & 2 & 2.28 & 24 & 2 & 2.87 & 12 & 3 & 4.13 & 29 & 5 & 6.11 & 17 & 9 & 10.25 & 64 & 18 & 18.65 & 53 \\
+				\hline
+				opt64 & 1 & 1.74 & 12 & 1 & 1.83 & 25 & 1 & 1.86 & 24 & 1 & 1.87 & 24 & 2 & 2.43 & 12 & 3 & 3.6 & 14 & 5 & 5.53 & 28 & 9 & 9.24 & 19 & 16 & 17.16 & 28 \\
+				\hline
+				asconmacv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 & 1 & 1.8 & 10 & 1 & 1.92 & 24 & 1 & 1.92 & 12 & 2 & 2.76 & 43 & 3 & 3.6 & 42 & 4 & 5.11 & 16 & 7 & 8.26 & 92 & 14 & 14.44 & 39 & 26 & 26.99 & 66 \\
+				\hline
+				ref & 1 & 1.08 & 14 & 1 & 1.11 & 6 & 1 & 1.12 & 6 & 1 & 1.5 & 12 & 1 & 1.99 & 21 & 2 & 2.85 & 15 & 4 & 4.63 & 51 & 7 & 8.08 & 18 & 14 & 15.07 & 32 \\
+				\hline
+				asconprfav12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 2 & 2.17 & 53 & 2 & 2.19 & 59 & 2 & 2.27 & 53 & 2 & 2.23 & 11 & 2 & 2.97 & 42 & 4 & 4.26 & 35 & 6 & 6.24 & 36 & 9 & 10.13 & 30 & 18 & 18.83 & 73 \\
+				\hline
+				opt64 & 1 & 1.78 & 13 & 1 & 1.74 & 12 & 1 & 1.92 & 38 & 1 & 1.86 & 11 & 2 & 2.44 & 14 & 3 & 3.62 & 14 & 5 & 5.58 & 52 & 9 & 9.34 & 87 & 16 & 17.5 & 208 \\
+				\hline
+				asconprfsv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.07 & 10 & 1 & 1.09 & 2 & 1 & 1.32 & 111 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				opt64 & 1 & 1.44 & 222 & 1 & 1.15 & 11 & 1 & 1.18 & 11 & & & & & & & & & & & & & & & & & & \\
+				\hline
+				asconprfv12 & & & & & & & & & & & & & & & & & & & & & & & & & & & \\
+				\hline
+				ref & 1 & 1.09 & 22 & 1 & 1.13 & 6 & 1 & 1.11 & 5 & 1 & 1.5 & 7 & 1 & 1.95 & 6 & 2 & 2.88 & 48 & 4 & 4.57 & 9 & 7 & 8.14 & 51 & 14 & 15.08 & 31 \\
+				\hline
+				opt64 & 1 & 1.77 & 11 & 1 & 1.86 & 32 & 1 & 1.87 & 11 & 2 & 2.7 & 71 & 3 & 4.71 & 1352 & 4 & 4.95 & 27 & 7 & 8.12 & 75 & 13 & 14.46 & 79 & 26 & 27.09 & 100 \\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{table}
+\end{landscape}
 
 \newpage
 
