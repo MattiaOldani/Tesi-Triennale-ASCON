@@ -205,9 +205,9 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
 
 \noindent L'header di ogni file CSV è formato da celle nel formato "\textit{NB-M}", con:
 \begin{itemize}
-    \item $N$: grandezza in byte del plain-text testato;
-    \item $B$: byte;
-    \item $M$: modalità, che per AEAD può essere $E$ (encryption) oppure $D$ (decryption), per autenticazione può essere $A$ (authentication) oppure $V$ (verify) mentre per hash questo campo non è presente.
+    \item \textit{N}: grandezza in byte del plain-text testato;
+    \item \textit{B}: byte;
+    \item \textit{M}: modalità, che per AEAD può essere \textit{E} (encryption) oppure \textit{D} (decryption), per autenticazione può essere \textit{A} (authentication) oppure \textit{V} (verify) mentre per hash questo campo non è presente.
 \end{itemize}
 
 \noindent Un esempio di header AEAD è il seguente.
@@ -260,32 +260,38 @@ if __name__ == "__main__":
     main(args.filename, args.port)
 \end{python}
 
-\noindent Come vediamo, lo script per mille iterazioni attende dalla porta seriale una esecuzione del loop di test, e poi lo scrive nel file CSV corrispondente.
+\noindent Come notiamo, lo script per mille iterazioni attende dalla porta seriale un'esecuzione del loop di test e dopo lo scrive nel file CSV corrispondente. \\
+
+\noindent Nella board con il sistema operativo la logica di raccolta dati è stata invece spostata dentro il programma di test, che quando rileva un tempo di esecuzione lo fa a scrivere direttamente nel file CSV.
 
 \section{Dispositivi utilizzati}
 
-Come detto prima, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. \\
+Come detto sopra, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
 
-\noindent Le tabelle seguenti sono organizzate nel seguente modo:
+\noindent Le successive tabelle sono organizzate nel seguente modo:
 \begin{itemize}
-    \item header: contiene celle nel formato "\textit{N-V}", dove:
+    \item Header: contiene celle nel formato "\textit{N-V}", dove:
     \begin{itemize}
         \item $N$: grandezza in byte del plain-text testato;
         \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
-        \begin{itemize}
+        \begin{enumerate}[label=(\arabic*)]
             \item m: valore minimo;
             \item a: valore medio;
             \item M: valore massimo.
-        \end{itemize}
+        \end{enumerate}
     \end{itemize}
-    \item righe: contiene il nome dell'algoritmo da testare e una serie di colonne vuote oppure il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
+    \item Righe, che contengono:
+        \begin{enumerate}
+            \item Il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
+            \item Il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
+        \end{enumerate}
 \end{itemize}
 
-\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti due tabelle: nella prima ci sono i tempi di esecuzione durante la fase di cifratura/autenticazione, mentra nelle seconda ci sono i tempi di esecuzione durante la fase di decifratura/verifica. Per la famiglia hash invece è presente una sola tabella, con i tempi di esecuzione delle funzioni hash in esame.
+\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti due tabelle: (1) tempi di esecuzione durante la fase di cifratura/autenticazione; (2) tempi di esecuzione durante la fase di decifratura/verifica. Invece, per la famiglia hash, sarà presente una sola tabella con i tempi di esecuzione delle funzioni prese in esame.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
-La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21G18 Cortex M0+ a 48 MHz, 256 KB di flash e 32 KB di memoria RAM.\cite{adafruit} L'architettura della board è ARMv6-M, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
+La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21G18 Cortex M0+ a 48 MHz, 256 KB di memoria flash e 32 KB di memoria RAM\cite{adafruit}. L'architettura della board è ARMv6-M, presente nelle ottimizzazioni possibili fornite da ASCON\cite{arm}.
 
 \subsubsection{Crypto AEAD}
 
@@ -738,7 +744,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \subsection{Arduino Due}
 
-La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel SAM3X8E ARM Cortex-M3.\cite{arduino} L'architettura della board è ARMv7-M, presente nelle ottimizzazioni possibili fornite da ASCON.\cite{arm}
+La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel SAM3X8E ARM Cortex-M3\cite{arduino}. L'architettura della board è ARMv7-M, presente nelle ottimizzazioni possibili fornite da ASCON\cite{arm}.
 
 \subsubsection{Crypto AEAD}
 
@@ -1227,9 +1233,9 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \subsection{RaspberryPi model 3B}
 
-L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2GHz Broadcom BCM2837 con 1GB di RAM.\cite{raspberry} L'architettura della board non è presente nelle ottimizzazioni possibili fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
+L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2GHz Broadcom BCM2837 con 1GB di RAM\cite{raspberry}. L'architettura della board non è presente nelle ottimizzazioni possibili fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
 
-\noindent Nelle tabelle sono presenti numerose celle con valore $1$: la quasi totalità di queste in realtà dovrebbero contenere $0$, questo perché la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo, che quindi la suite di test non riesce a rilevare. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
+\noindent Nelle tabelle sono presenti numerose celle con valore 1. Questo perché la quasi totalità di queste in realtà dovrebbero contenere 0: la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo. Essi non sono rilevati dalla suite di test. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
 
 \subsubsection{Crypto AEAD}
 
