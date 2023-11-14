@@ -1,49 +1,84 @@
-\documentclass{report}
-\usepackage{graphicx}
-\usepackage[italian]{babel}
-\usepackage[allcolors=blue]{hyperref}
-\usepackage[inkscapeformat=png]{svg}
+\documentclass[12pt,a4paper,italian]{report}
+\usepackage{template}
+\usepackage[colorinlistoftodos,disable]{todonotes}
+
+\def\myCDL{Corso di Laurea in Informatica}
+
+\def\myTitle{Titolo}
+
+\def\myName{\textbf{Oldani Mattia}}
+\def\myMat{Matr.\@ 966668}
+
+\def\myRefereeA{Prof.\ Andrea Visconti}
+
+\def\myYY{2022-2023}
+
+% Package di formato
+\usepackage[a4paper]{geometry}		% Formato del foglio
+\usepackage[italian]{babel}			% Supporto per l'italiano
+\usepackage[utf8]{inputenc}			% Supporto per UTF-8
+\usepackage{afterpage, lscape}
+\usepackage[a-1b]{pdfx}			    % File conforme allo standard PDF-A (obbligatorio per la consegna)
+
+% Package per la grafica
+\usepackage{graphicx}				% Funzioni avanzate per le immagini
+\usepackage{hologo}					% Bibtex logo with \hologo{BibTeX}
+\usepackage[shortlabels]{enumitem}
 \usepackage{array}
-\usepackage{multirow}
-\usepackage{tabularx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
-\usepackage[parfill]{parskip}
-\usepackage{listings}
-\usepackage{biblatex}
-\usepackage{csquotes}
-\usepackage{multirow}
-\usepackage{pdflscape}
+\usepackage{caption, subcaption}
+\usepackage{rotating}
 \usepackage{adjustbox}
 
-\graphicspath{ {images} }
-
+% Citazioni e bibliografia
+\usepackage[style=italian]{csquotes}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
 \addbibresource{bibliography.bib}
+\usepackage[toc]{appendix}
+\usepackage{epigraph}
+\DeclareFieldFormat{postnote}{#1}
 
-\title{Titolo}
-\author{Oldani Mattia}
-\date{September 2023}
+% Package tipografici
+\usepackage{lmodern,textcomp}		% Latin Modern font
+\usepackage{amssymb,amsmath,amsthm} % Simboli matematici
+\usepackage{listings}				% Scrittura di codice
+\usepackage{minted}                 % Scrittura di codice
+\usepackage{algorithm}              % Scrittura di algoritmi
+\usepackage{algpseudocodex}         % Scrittura di algoritmi
+
+\renewcommand{\thealgorithm}{}
+\floatname{algorithm}{Algoritmo}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+
+% vediamo se va
+\usepackage{pythonhighlight}
+
+% Sistema note a pié di pagina nelle tabelle
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\makesavenoteenv{table}
+
+% Package ipertesto
+\usepackage{url}					% Visualizza e rendere interattii gli URL
+\usepackage{hyperref}				% Rende interattivi i collegamenti interni
+
+% Path immagini
+\graphicspath{ {./images/} }
 
 \begin{document}
 
-\maketitle
+% Pagina vuota da usare nella stampa
+% \afterpage{Pagina lasciata
+% intenzionalmente vuota.\newpage\addtocounter{page}{-1}}
 
-\chapter*{Dedica}
+% Creazione automatica del frontespizio
+\frontespizio \beforepreface
 
-Questa è la mia dedica
-
-\newpage
-
-\chapter*{Ringraziamenti}
-
-Questi sono i miei ringraziamenti
-
-\tableofcontents
-\newpage
+% Dedica
+\prefacesection{Ringraziamenti} I miei ringraziamenti
+	
+\afterpreface
+	
+\listoftodos
 
 \chapter{Introduzione}
 
@@ -86,65 +121,98 @@ La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle ma
 \chapter{Testing e analisi}
 
 % "in precedenza" perchè nel capitolo 3 spiego le famiglie e tutto il resto
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici.
+Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS".
 
 \section{Suite di test}
 
-Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. Il test fornito eseguiva mediamente mille esecuzioni di un dato algoritmo di una data famiglia, testando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report invece esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain text e dati associati di grandezze minime, massime (secondo i test definiti da ASCON) e intermedie significative.
+Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di un dato algoritmo di una data famiglia, usando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain-text e dati associati di grandezze minime, massime (secondo i test definiti da ASCON) e intermedie significative.
 
 \subsection{Pseudocodice}
 
-% Aggiungi colori: https://www.overleaf.com/learn/latex/Code_listing
-% Da riscrivere, messo solo per averlo qua
-% Aggiungi parte nuovo script
-\begin{lstlisting}[language=C++]
-test {
-key[keybytes] inizializzato
-nonce[CRYPTO_NPUBBYTES] inizializzato
-msg[MAX_MESSAGE_LENGTH] inizializzato
-msg2[MAX_MESSAGE_LENGTH]
-ad[MAX_ASSOCIATED_DATA_LENGTH] inizializzato
-ct[MAX_MESSAGE_LENGTH + CRYPTO_ABYTES]
-clen, mlen2
-mlen, adlen date da input
+Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, creata modificando leggermente quella proposta da ASCON per poter rilevare i tempi di esecuzione. Per avere dei dati consistenti, la funzione di test viene chiamata mille volte per ogni grandezza di plain-text e dati associati in esame.
 
-start timer
-test cifratura
-end timer
+\begin{algorithm}
+    \caption{Testing con varie lunghezze di plain-text e dati associati.}
+    \begin{algorithmic}[1]
+        \Require{Lunghezza $mlen$ del plain-text.}
+        \Require{Lunghezza $adlen$ dei dati associati (solo AEAD).}
+        
+        \LComment{Generazione di chiave, nonce e dati associati.}
+        \State $key \gets$ \Call{GENERATE\_KEY}{$klen$}
+        \State $nonce \gets$ \Call{GENERATE\_NONCE}{$nlen$}
+        \State $ad \gets$ \Call{GENERATE\_AD}{$adlen$}
+        \State \phantom{}
 
-start timer
-test decifratura + verifica
-end timer
-}
+        \LComment{Generazione del plain-text da testare.}
+        \State $pt \gets$ \Call{GENERATE\_PT}{$mlen$}
+        \State \phantom{}
 
-main {
-max_message_length = 4 ascon_aead_rate
-max_associated_data_length = 4 ascon_aead_rate
-test con i due parametri mlen adlen di varie lunghezze per 1000 volte
-}
-\end{lstlisting}
+        \LComment{Inizio timer.}
+        \State $time \gets$ \Call{GET\_TIME}{}
+        \State \phantom{}
 
-Lo pseudocodice è formato da due funzioni:
-\begin{itemize}
-    \item \textbf{main}: vengono definite due costanti, che rappresentano la lunghezza massima di plain-text testabile (in byte) e la lunghezza massima di associated data utilizzabili (in byte); per 1000 volte viene quindi eseguita la funzione test che, date la lunghezza del plain-text e degli associated data, va a stampare su un file CSV i risultati ottenuti;
-    \item \textbf{test}: vengono definite una serie di variabili necessarie per l'esecuzione delle funzioni fornite da ASCON, come la chiave, il nonce, il plain-text e gli associated data; una volta inizializzate le variabili vengono misurati i tempi di esecuzione della parte di cifratura e decifratura, e poi inseriti in un file CSV.
-\end{itemize}
+        \LComment{Cifratura e misura del tempo di esecuzione.}
+        \State $ct, error \gets$ \Call{ENCRYPT}{$pt, \, key, \, nonce, \, ad$}
+        \State $time \gets$ \Call{GET\_TIME}{} - time
+        \State \phantom{}
+
+        \LComment{Controllo degli errori.}
+        \If{$error > 0$}
+            \State \Call{EXIT}{$error$}
+        \EndIf
+        \State \phantom{}
+
+        \LComment{Stampa dei risultati.}
+        \State \Call{PRINT}{$time$}
+        \State \phantom{}
+
+        \LComment{Se la famiglia testata è AEAD oppure autenticazione viene eseguita la funzione di check}
+        \If{$family \in \{AEAD, autenticazione\}$}
+            \LComment{Inizio timer.}
+            \State $time \gets$ \Call{GET\_TIME}{}
+            \State \phantom{}
+
+            \LComment{Decifratura e misura del tempo di esecuzione.}
+            \State $ct, error \gets$ \Call{DECRYPT}{$pt, \, key, \, nonce, \, ad$}
+            \State $time \gets$ \Call{GET\_TIME}{} - time
+            \State \phantom{}
+
+            \LComment{Controllo degli errori.}
+            \If{$error > 0$}
+                \State \Call{EXIT}{$error$}
+            \EndIf
+            \State \phantom{}
+
+            \LComment{Stampa dei risultati.}
+            \State \Call{PRINT}{$time$}
+        \EndIf
+    \end{algorithmic}
+\end{algorithm}
+
+\noindent Per inserire i risultati come righe di un file CSV facilmente interrogabili, il programma che richiama la funzione di test esegue per mille volte un loop, nel quale vengono usate in sequenza le varie grandezze di plain-text e dati associati, così da avere, per ogni riga del file CSV, i tempi di esecuzione di un campionamento sulle lunghezze da testare.
+
+\begin{algorithm}
+    \caption{Come viene chiamata la funzione di test.}
+    \begin{algorithmic}[1]
+        \LComment{Funzione di test.}
+        \For{$\_ \in range(1000)$}
+            \State \Call{TEST}{$mlen_1$, $adlen_1$}
+            \State \dots
+            \State \Call{TEST}{$mlen_{n-1}$, $adlen_{n-1}$}
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
 
 \subsection{Arduino IDE}
 
-Il file di test veniva prima inserito in un progetto Arduino con i file che rappresentavano l'implementazione di un dato algoritmo di una data famiglia, poi compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. 
-
-% Aggiungi parte Raspberry
+Per le board prive di sistema operativo il file di test veniva prima inserito in un progetto Arduino con i file di una data implementazione di un dato algoritmo di una data famiglia, poi compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board rimasta, il file di test e i file di una data implementazione di un dato algoritmo di una data famiglia venivano messi in una cartella, trasferiti sulla board tramite $scp$, compilati con il compilatore $gcc$ e infine eseguiti.
 
 \subsection{Raccolta dei risultati}
 
-I risultati delle mille esecuzioni dei test di varie grandezze di plain-text e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file csv.
+Per le due board prive di sistema operativo, i risultati delle mille esecuzioni dei test di varie grandezze di plain-text e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file CSV.
 
-% Aggiungi colori: https://www.overleaf.com/learn/latex/Code_listing
-\begin{lstlisting}[language=Python]
-import argparse
-import os
-import serial
+\begin{python}
+import argparse, os, serial
 from serial import SerialException
 
 
@@ -154,12 +222,11 @@ def main(filename: str, port: str) -> None:
             s = serial.Serial(port, 9600)
             break
         except SerialException:
-            port = input("Porta errata, inserisci la porta corretta: ")
+            port = input("Porta errata, inserisci porta corretta: ")
 
     files = [file.split(".")[0] for file in os.listdir()]
-
     while filename not in files:
-        filename = input("Nome file errato, inserisci il nome corretto: ")
+        filename = input("Nome errato, inserisci nome corretto: ")
 
     with open(f"{filename}.csv", "a") as f:
         for i in range(1000):
@@ -168,20 +235,18 @@ def main(filename: str, port: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    
     parser.add_argument("filename")
     parser.add_argument("port")
     
     args = parser.parse_args()
-
     main(args.filename, args.port)
-\end{lstlisting}
+\end{python}
 
-Aggiungi spiegazione dello script + parte raspberry
+\noindent Come vediamo, lo script per mille iterazioni attende dalla porta seriale una esecuzione del loop di test, e poi lo scrive nel file CSV corrispondente.
 
 \section{Dispositivi utilizzati}
 
-L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
+Come detto prima, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
