@@ -210,15 +210,14 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \item \textit{M}: modalità, che per AEAD può essere \textit{E} (encryption) oppure \textit{D} (decryption), per autenticazione può essere \textit{A} (authentication) oppure \textit{V} (verify) mentre per hash questo campo non è presente.
 \end{itemize}
 
-\noindent Un esempio di header AEAD è il seguente.
-
 \begin{table}[H]
     \centering
-	\begin{tabular}{|c|c|c|c|c|c|}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
 		\hline
-		0B-E & 0B-D & 1B-E & 1B-D & 8B-E & 8B-D \\
+		0B-E & 0B-D & 1B-E & 1B-D & 8B-E & 8B-D & 16B-E & 16B-D \\
 		\hline
     \end{tabular}
+    \caption{Header AEAD con plain-text da 0, 1 8 e 16 byte.}
 \end{table}
 
 \subsection{Arduino IDE}
@@ -299,6 +298,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di cifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -376,6 +376,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di decifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -457,6 +458,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia hash.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -578,6 +580,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di generazione del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -661,6 +664,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di verifica del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -752,6 +756,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di cifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -833,6 +838,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di decifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -918,6 +924,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia hash nella fase di cifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1047,6 +1054,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di generazione del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1140,6 +1148,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di verifica del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1243,6 +1252,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di cifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1288,6 +1298,7 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia crypto AEAD nella fase di decifratura.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1337,6 +1348,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia hash.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1394,6 +1406,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di generazione del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -1437,6 +1450,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \begin{landscape}
     \begin{table}[]
+        \caption{Prestazioni famiglia auth nella fase di verifica del codice.}
         \begin{adjustbox}{width=600pt}
             \centering
 			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
