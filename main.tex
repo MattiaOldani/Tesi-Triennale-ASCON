@@ -121,15 +121,15 @@ La differenza sostanziale, oltre alle dimensioni molto ridotte, rispetto alle ma
 \chapter{Testing e analisi}
 
 % "in precedenza" perchè nel capitolo 3 spiego le famiglie e tutto il resto
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS".
+Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS". \
+
+\noindent In questo capitolo verranno usati il termine "algoritmo" per indicare un algoritmo di una data famiglia e il termine "implementazione" per indicare una implementazione di un dato algoritmo di una data famiglia. Viene fatto questo per evitare di ripetere ogni volta "una data implementazione di un dato algoritmo di una data famiglia".
 
 \section{Suite di test}
 
-Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di un dato algoritmo di una data famiglia, usando di volta in volta usando diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni di un dato algoritmo di una data famiglia, testando plain-text e dati associati di grandezze minime, massime – secondo i test definiti da ASCON – e intermedie significative.
+Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di una implementazione scelta, usando di volta in volta diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni per l'implementazione in esame, testando plain-text e dati associati di grandezze minime, massime – secondo i test definiti da ASCON – e intermedie significative.
 
 \subsection{Pseudocodice}
-
-Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, creata modificando leggermente quella proposta da ASCON per poter rilevare i tempi di esecuzione. Per avere dei dati consistenti, la funzione di test viene chiamata mille volte per ogni grandezza di plain-text e dati associati in esame.
 
 \begin{algorithm}
     \caption{Testing con varie lunghezze di plain-text e dati associati.}
@@ -189,13 +189,15 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \end{algorithmic}
 \end{algorithm}
 
+Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, creata modificando leggermente quella fornita da ASCON per poter rilevare i tempi di esecuzione. Per avere dei dati consistenti, la funzione di test viene chiamata mille volte per ogni grandezza di plain-text e dati associati in esame.
+
 \noindent Per inserire i risultati come righe di un file CSV facilmente interrogabili, il programma che richiama la funzione di test esegue per mille volte un loop, nel quale vengono usate in sequenza le varie grandezze di plain-text e dati associati, così da avere, per ogni riga del file CSV, i tempi di esecuzione di un campionamento sulle lunghezze da testare.
 
 \begin{algorithm}
     \caption{Come viene chiamata la funzione di test.}
     \begin{algorithmic}[1]
         \LComment{Funzione di test.}
-        \For{$\_ \in range(1000)$}
+        \For{$\_ \text{ in } range(1000)$}
             \State \Call{TEST}{$mlen_1$, $adlen_1$}
             \State \dots
             \State \Call{TEST}{$mlen_{n-1}$, $adlen_{n-1}$}
@@ -203,10 +205,10 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \end{algorithmic}
 \end{algorithm}
 
-\noindent L'header di ogni file CSV è formato da celle nel formato "\textit{NB-M}", con:
+\noindent L'header di ogni file CSV è composto da celle nel formato "\textit{NB-M}", con:
 \begin{itemize}
     \item \textit{N}: grandezza in byte del plain-text testato;
-    \item \textit{B}: byte;
+    \item \textit{B}: indica appunto che la grandezza $N$ è in byte;
     \item \textit{M}: modalità, che per AEAD può essere \textit{E} (encryption) oppure \textit{D} (decryption), per autenticazione può essere \textit{A} (authentication) oppure \textit{V} (verify) mentre per hash questo campo non è presente.
 \end{itemize}
 
@@ -220,9 +222,9 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \caption{Header AEAD con plain-text da 0, 1 8 e 16 byte.}
 \end{table}
 
-\subsection{Arduino IDE}
+\subsection{Compilazione}
 
-Per le board prive di sistema operativo il file di test veniva dapprima inserito in un progetto Arduino con i file di una data implementazione di un dato algoritmo di una data famiglia, successivamente compilato tramite Arduino IDE e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board rimasta, il file di test e i file di una data implementazione di un dato algoritmo di una data famiglia venivano messi in una cartella, trasferiti sulla board tramite \textit{scp}, compilati con il compilatore \textit{gcc} e infine eseguiti.
+Per le board prive di sistema operativo è stato utilizzato il software Arduino IDE: il file di test veniva dapprima inserito in un progetto Arduino con i file che definivano l'implementazione scelta, successivamente compilato tramite il compilatore presente nella suite Arduino e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board senza sistema operativo, il file di test e i file dell'implementazione scelta venivano messi in una cartella, trasferiti sulla board tramite l'utility \textit{scp}, compilati con \textit{gcc} e infine eseguiti.
 
 \subsection{Raccolta dei risultati}
 
@@ -234,59 +236,79 @@ from serial import SerialException
 
 
 def main(filename: str, port: str) -> None:
-    while True:
-        try:
-            s = serial.Serial(port, 9600)
-            break
-        except SerialException:
-            port = input("Porta errata, inserisci porta corretta: ")
+  while True:
+    try:
+      s = serial.Serial(port, 9600)
+        break
+      except SerialException:
+        port = input("Porta errata da ARGV, inserisci la porta: ")
 
-    files = [file.split(".")[0] for file in os.listdir()]
-    while filename not in files:
-        filename = input("Nome errato, inserisci nome corretto: ")
+  files = [file.split(".")[0] for file in os.listdir()]
+  while filename not in files:
+    filename = input("Nome errato da ARGV, inserisci il nome: ")
 
-    with open(f"{filename}.csv", "a") as f:
-        for i in range(1000):
-            f.write(f"{s.readline().strip().decode()}\n")
+  with open(f"{filename}.csv", "a") as f:
+    for i in range(1000):
+      f.write(f"{s.readline().strip().decode()}\n")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename")
-    parser.add_argument("port")
+  parser = argparse.ArgumentParser()
+  parser.add_argument("filename")
+  parser.add_argument("port")
 
-    args = parser.parse_args()
-    main(args.filename, args.port)
+  args = parser.parse_args()
+  main(args.filename, args.port)
 \end{python}
 
 \noindent Come notiamo, lo script per mille iterazioni attende dalla porta seriale un'esecuzione del loop di test e dopo lo scrive nel file CSV corrispondente. \\
 
-\noindent Nella board con il sistema operativo la logica di raccolta dati è stata invece spostata dentro il programma di test, che quando rileva un tempo di esecuzione lo fa a scrivere direttamente nel file CSV.
+\noindent Nella board con il sistema operativo la logica di raccolta dati è stata invece spostata dentro il programma di test, che quando rileva un tempo di esecuzione lo va a scrivere direttamente nel file CSV.
 
 \section{Dispositivi utilizzati}
 
-Come detto sopra, l'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
+L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B.
 
-\noindent Le successive tabelle sono organizzate nel seguente modo:
+\noindent Nei capitoli successivi saranno presenti due tipi di tabelle:
 \begin{itemize}
-    \item Header: contiene celle nel formato "\textit{N-V}", dove:
+    \item tempi di esecuzione: contengono, appunto, i tempi di esecuzione, raccolti per implementazione e algoritmo; queste tabelle sono organizzate nel seguente modo:
     \begin{itemize}
-        \item $N$: grandezza in byte del plain-text testato;
-        \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
-        \begin{enumerate}[label=(\arabic*)]
-            \item m: valore minimo;
-            \item a: valore medio;
-            \item M: valore massimo.
-        \end{enumerate}
+        \item header: contiene celle nel formato "\textit{N-V}", dove:
+        \begin{itemize}
+            \item $N$: grandezza in byte del plain-text testato;
+            \item $T$: tipo di valore indicato nelle celle sottostanti, e può essere:
+            \begin{enumerate}[label=(\arabic*)]
+                \item m: valore minimo;
+                \item a: valore medio;
+                \item M: valore massimo.
+            \end{enumerate}
+            \begin{table}[H]
+                \centering
+            	\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+            		\hline
+            		0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 8-m & 8-a & 8-M \\
+            		\hline
+                \end{tabular}
+                \caption{Header di un file CSV con plain-text da 0, 1 e 8 byte.}
+            \end{table}
+        \end{itemize}
+        \item righe, che contengono:
+            \begin{enumerate}
+                \item il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
+                \item il nome di una implementazione dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
+            \end{enumerate}
     \end{itemize}
-    \item Righe, che contengono:
-        \begin{enumerate}
-            \item Il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
-            \item Il nome di una famiglia dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
-        \end{enumerate}
+    \item spazio utilizzato: contengono alcune informazioni sulle proprietà dei file eseguibili compilati. Per le due board prive di sistema operativo, queste informazioni sono state ricavate dal terminale dell'Arduino IDE, e sono le seguenti:
+    \begin{itemize}
+        \item sketch: dimensione del file compilato in byte;
+        \item eseguibile: dimensione del file compilato, al quale vengono aggiunti alcuni header per poter essere eseguito sulla board, sempre misurato in byte;
+        \item pagine: numero di pagine;
+        \item loading time: secondi impiegati per trasferire il file eseguibile dal pc alla board.
+    \end{itemize}
+    Per quanto riguarda invece la board con il sistema operativo, l'unica informazione disponibile è la grandezza del file eseguibile, ricavata tramite l'utility \textit{stat}.
 \end{itemize}
 
-\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti due tabelle: (1) tempi di esecuzione durante la fase di cifratura/autenticazione; (2) tempi di esecuzione durante la fase di decifratura/verifica. Invece, per la famiglia hash, sarà presente una sola tabella con i tempi di esecuzione delle funzioni prese in esame.
+\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti tre tabelle: (1) tempi di esecuzione durante la fase di cifratura/autenticazione ; (2) tempi di esecuzione durante la fase di decifratura/verifica; (3) spazio utilizzato. Invece, per la famiglia hash, sarà presente una sola tabella con i tempi di esecuzione delle funzioni prese in esame e la tabella dello spazio utilizzato.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
@@ -295,6 +317,100 @@ La prima board testata è un prodotto Adafruit con un processore 32 bit ATSAMD21
 \subsubsection{Crypto AEAD}
 
 Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
+
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia AEAD.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        ascon80pq & & & & \\
+        \hline
+        armv6m & 22048 [8\%] & 22140 & 346 & 0.192 \\
+        \hline
+        armv6m lowsize & 16864 [6\%] & 16956 & 265 & 0.162 \\
+        \hline
+        bi32 & 29168 [11\%] & 29260 & 458 & 0.250 \\
+        \hline
+        bi32 armv6m & 25420 [9\%] & 25512 & 399 & 0.226 \\
+        \hline
+        bi32 lowreg & 23076 [8\%] & 23168 & 362 & 0.208 \\
+        \hline
+        bi32 lowsize & 16700 [6\%] & 16792 & 263 & 0.166 \\
+        \hline
+        opt32 & 53160 [20\%] & 53252 & 833 & 0.421 \\
+        \hline
+        opt32 lowsize & 16948 [6\%] & 17040 & 267 & 0.182 \\
+        \hline
+        ref & 53268 [20\%] & 53360 & 834 & 0.503 \\
+        \hline
+        ascon128abi32 & & & & \\
+        \hline  
+        bi32 & 27760 [10\%] & 27852 & 436 & 0.239 \\
+        \hline
+        bi32 armv6m & 23116 [8\%] & 23208 & 363 & 0.200 \\
+        \hline
+        bi32 lowreg & 21140 [8\%] & 21232 & 332 & 0.189 \\
+        \hline
+        bi32 lowsize & 16928 [6\%] & 17020 & 266 & 0.136 \\
+        \hline
+        ref & 48352 [18\%] & 48444 & 757 & 0.448 \\
+        \hline
+        ascon128av12 & & & & \\
+        \hline
+        armv6m & 23108 [8\%] & 23200 & 363 & 0.210 \\
+        \hline
+        armv6m lowsize & 16888 [6\%] & 16980 & 266 & 0.179 \\
+        \hline
+        bi32 & 32132 [12\%] & 32224 & 504 & 0.300 \\
+        \hline
+        bi32 armv6m & 27748 [10\%] & 27840 & 435 & 0.271 \\
+        \hline
+        bi32 lowreg & 24964 [9\%] & 25056 & 391 & 0.240 \\
+        \hline
+        bi32 lowsize & 16600 [6\%] & 16692 & 261 & 0.164 \\
+        \hline
+        opt32 & 58872 [22\%] & 58964 & 922 & 0.455 \\
+        \hline
+        opt32 lowsize & 16972 [6\%] & 17064 & 267 & 0.170 \\
+        \hline
+        ref & 56412 [21\%] & 56504 & 883 & 0.526 \\
+        \hline
+        ascon128bi32v12 & & & & \\
+        \hline
+        bi32 & 25824 [9\%] & 25916 & 405 & 0.201 \\
+        \hline
+        bi32 armv6m & 21916 [8\%] & 22008 & 344 & 0.198 \\
+        \hline
+        bi32 lowreg & 20232 [7\%] & 20324 & 318 & 0.155 \\
+        \hline
+        bi32 lowsize & 16864 [6\%] & 16956 & 265 & 0.185 \\
+        \hline
+        ref & 39628 [15\%] & 39720 & 621 & 0.370 \\
+        \hline
+        ascon128v12 & & & & \\
+        \hline
+        armv6m & 21864 [8\%] & 21956 & 344 & 0.227 \\
+        \hline
+        armv6m lowsize & 16824 [6\%] & 16916 & 265 & 0.183 \\
+        \hline
+        bi32 & 28736 [10\%] & 28828 & 451 & 0.369 \\
+        \hline
+        bi32 armv6m & 25076 [9\%] & 25168 & 394 & 0.249 \\
+        \hline
+        bi32 lowreg & 22880 [8\%] & 22972 & 359 & 0.192 \\
+        \hline
+        bi32 lowsize & 16560 [6\%] & 16652 & 261 & 0.159 \\
+        \hline
+        opt32 & 52768 [20\%] & 52860 & 826 & 0.425 \\
+        \hline
+        opt32 lowsize & 16908 [6\%] & 17000 & 266 & 0.170 \\
+        \hline
+        ref & 53044 [20\%] & 53136 & 831 & 0.484 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \begin{landscape}
     \begin{table}[]
@@ -456,6 +572,120 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, ARMv6-M lowsize, bi32, bi32 ARMv6-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia hash.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        asconhashabi32v12 & & & & \\
+        \hline
+        bi32 & 23516 [8\%] & 23608 & 369 & 0.186 \\
+        \hline
+        bi32 armv6m & 16356 [6\%] & 16448 & 257 & 0.145 \\
+        \hline
+        bi32 lowreg & 16412 [6\%] & 16504 & 258 & 0.141 \\
+        \hline
+        bi32 lowsize & 15572 [5\%] & 15664 & 245 & 0.141 \\
+        \hline
+        ref & 27256 [10\%] & 27348 & 428 & 0.235 \\
+        \hline
+        asconhashav12 & & & & \\
+        \hline
+        armv6m & 16332 [6\%] & 16424 & 257 & 0.153 \\
+        \hline
+        armv6m lowsize & 15540 [5\%] & 15632 & 245 & 0.147 \\
+        \hline
+        bi32 & 24016 [9\%] & 24108 & 377 & 0.195 \\
+        \hline
+        bi32 armv6m & 16832 [6\%] & 16924 & 265 & 0.143 \\
+        \hline
+        bi32 lowreg & 16896 [6\%] & 16988 & 266 & 0.152 \\
+        \hline
+        bi32 lowsize & 15644 [5\%] & 15736 & 246 & 0.124 \\
+        \hline
+        opt32 & 27028 [10\%] & 27120 & 424 & 0.218 \\
+        \hline
+        opt32 lowsize & 15628 [5\%] & 15720 & 246 & 0.126 \\
+        \hline
+        ref & 31836 [12\%] & 31928 & 499 & 0.256 \\
+        \hline
+        asconhashbi32v12 & & & & \\
+        \hline
+        bi32 & 20188 [7\%] & 20280 & 317 & 0.181 \\
+        \hline
+        bi32 armv6m & 16356 [6\%] & 16448 & 257 & 0.148 \\
+        \hline
+        bi32 lowreg & 16412 [6\%] & 16504 & 258 & 0.148 \\
+        \hline
+        bi32 lowsize & 15572 [5\%] & 15664 & 245 & 0.129 \\
+        \hline
+        ref & 27436 [10\%] & 27528 & 431 & 0.239 \\
+        \hline
+        asconhashv12 & & & & \\
+        \hline
+        armv6m & 16332 [6\%] & 16424 & 257 & 0.172 \\
+        \hline
+        armv6m lowsize & 15540 [5\%] & 15632 & 245 & 0.154 \\
+        \hline
+        bi32 & 20688 [7\%] & 20780 & 325 & 0.182 \\
+        \hline
+        bi32 armv6m & 16832 [6\%] & 16924 & 265 & 0.163 \\
+        \hline
+        bi32 lowreg & 16896 [6\%] & 16988 & 266 & 0.144 \\
+        \hline
+        bi32 lowsize & 15644 [5\%] & 15736 & 246 & 0.137 \\
+        \hline
+        opt32 & 30500 [11\%] & 30592 & 478 & 0.261 \\
+        \hline
+        opt32 lowsize & 15628 [5\%] & 15720 & 246 & 0.128 \\
+        \hline
+        ref & 35384 [13\%] & 35476 & 555 & 0.298 \\
+        \hline
+        asconxofav12 & & & & \\
+        \hline
+        armv6m & 16332 [6\%] & 16424 & 257 & 0.130 \\
+        \hline
+        armv6m lowsize & 15540 [5\%] & 15632 & 245 & 0.147 \\
+        \hline
+        bi32 & 24016 [9\%] & 24108 & 377 & 0.212 \\
+        \hline
+        bi32 armv6m & 16832 [6\%] & 16924 & 265 & 0.147 \\
+        \hline
+        bi32 lowreg & 16896 [6\%] & 16988 & 266 & 0.137 \\
+        \hline
+        bi32 lowsize & 15644 [5\%] & 15736 & 246 & 0.131 \\
+        \hline
+        opt32 & 27028 [10\%] & 27120 & 424 & 0.230 \\
+        \hline
+        opt32 lowsize & 15628 [5\%] & 15720 & 246 & 0.138 \\
+        \hline
+        ref & 31828 [12\%] & 31920 & 499 & 0.263 \\
+        \hline
+        asconxofv12 & & & & \\
+        \hline
+        armv6m & 16332 [6\%] & 16424 & 257 & 0.161 \\
+        \hline
+        armv6m lowsize & 15540 [5\%] & 15632 & 245 & 0.179 \\
+        \hline
+        bi32 & 20688 [7\%] & 20780 & 325 & 0.179 \\
+        \hline
+        bi32 armv6m & 16832 [6\%] & 16924 & 265 & 0.166 \\
+        \hline
+        bi32 lowreg & 16896 [6\%] & 16988 & 266 & 0.144 \\
+        \hline
+        bi32 lowsize & 15644 [5\%] & 15736 & 246 & 0.141 \\
+        \hline
+        opt32 & 30500 [11\%] & 30592 & 478 & 0.246 \\
+        \hline
+        opt32 lowsize & 15628 [5\%] & 15720 & 246 & 0.137 \\
+        \hline
+        ref & 35340 [13\%] & 35432 & 554 & 0.286 \\
+        \hline
+    \end{tabular}
+\end{table}
+
 \begin{landscape}
     \begin{table}[]
         \caption{Prestazioni famiglia hash.}
@@ -577,6 +807,86 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 \subsubsection{Crypto auth}
 
 Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv6-M, bi32, bi32 ARMv6-M, bi32 lowreg, opt32 e ref.
+
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia auth.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        asconmacav12 & & & & \\
+        \hline
+        armv6m & 17268 [6\%] & 17360 & 272 & 0.136 \\
+        \hline
+        bi32 & 24836 [9\%] & 24928 & 390 & 0.190 \\
+        \hline
+        bi32 armv6m & 18036 [6\%] & 18128 & 284 & 0.152 \\
+        \hline
+        bi32 lowreg & 18000 [6\%] & 18092 & 283 & 0.191 \\
+        \hline
+        opt32 & 32232 [12\%] & 32324 & 506 & 0.250 \\
+        \hline
+        ref & 32496 [12\%] & 32588 & 510 & 0.256 \\
+        \hline
+        asconmacv12 & & & & \\
+        \hline
+        armv6m & 17268 [6\%] & 17360 & 272 & 0.146 \\
+        \hline
+        bi32 & 21512 [8\%] & 21604 & 338 & 0.202 \\
+        \hline
+        bi32 armv6m & 18036 [6\%] & 18128 & 284 & 0.142 \\
+        \hline
+        bi32 lowreg & 18000 [6\%] & 18092 & 283 & 0.155 \\
+        \hline
+        opt32 & 35640 [13\%] & 35732 & 559 & 0.284 \\
+        \hline
+        ref & 36008 [13\%] & 36100 & 565 & 0.284 \\
+        \hline
+        asconprfav12 & & & & \\
+        \hline
+        armv6m & 17268 [6\%] & 17360 & 272 & 0.140 \\
+        \hline
+        bi32 & 24836 [9\%] & 24928 & 390 & 0.226 \\
+        \hline
+        bi32 armv6m & 18036 [6\%] & 18128 & 284 & 0.170 \\
+        \hline
+        bi32 lowreg & 18000 [6\%] & 18092 & 283 & 0.164 \\
+        \hline
+        opt32 & 32256 [12\%] & 32348 & 506 & 0.268 \\
+        \hline
+        ref & 32456 [12\%] & 32548 & 509 & 0.255 \\
+        \hline
+        asconprfsv12 & & & & \\
+        \hline
+        armv6m & 15972 [6\%] & 16064 & 251 & 0.136 \\
+        \hline
+        bi32 & 21884 [8\%] & 21976 & 344 & 0.197 \\
+        \hline
+        bi32 armv6m & 17108 [6\%] & 17200 & 269 & 0.170 \\
+        \hline
+        bi32 lowreg & 17128 [6\%] & 17220 & 135 & 0.270 \\
+        \hline
+        opt32 & 20716 [7\%] & 20808 & 326 & 0.176 \\
+        \hline
+        ref & 20284 [7\%] & 20376 & 319 & 0.199 \\
+        \hline
+        asconprfv12 & & & & \\
+        \hline
+        armv6m & 17268 [6\%] & 17360 & 272 & 0.156 \\
+        \hline
+        bi32 & 21512 [8\%] & 21604 & 338 & 0.206 \\
+        \hline
+        bi32 armv6m & 18036 [6\%] & 18128 & 284 & 0.168 \\
+        \hline
+        bi32 lowreg & 18000 [6\%] & 18092 & 283 & 0.157 \\
+        \hline
+        opt32 & 35636 [13\%] & 35728 & 559 & 0.318 \\
+        \hline
+        ref & 35968 [13\%] & 36060 & 564 & 0.285 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \begin{landscape}
     \begin{table}[]
@@ -754,6 +1064,106 @@ La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel 
 
 Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia AEAD.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        ascon80pq & & & & \\
+        \hline
+        armv7m & 19780 [3\%] & 20960 & 82 & 4.022 \\
+        \hline
+        armv7m lowsize & 13292 [2\%] & 14472 & 57 & 2.801 \\
+        \hline
+        armv7m small & 14244 [2\%] & 15424 & 61 & 2.996 \\
+        \hline
+        bi32 & 24844 [4\%] & 26024 & 102 & 5.021 \\
+        \hline
+        bi32 armv7m & 39948 [7\%] & 41128 & 161 & 7.915 \\
+        \hline
+        bi32 lowreg & 19268 [3\%] & 20448 & 80 & 3.931 \\
+        \hline
+        bi32 lowsize & 13748 [2\%] & 14928 & 59 & 2.885 \\
+        \hline
+        opt32 & 52964 [10\%] & 54144 & 212 & 10.414 \\
+        \hline
+        opt32 lowsize & 13532 [2\%] & 14712 & 58 & 2.847 \\
+        \hline
+        ref & 14020 [2\%] & 15200 & 60 & 2.936 \\
+        \hline
+        ascon128abi32 & & & & \\
+        \hline
+        bi32 & 21972 [4\%] & 23152 & 91 & 4.467 \\
+        \hline
+        bi32 armv7m & 38756 [7\%] & 39936 & 156 & 7.666 \\
+        \hline
+        bi32 lowreg & 17036 [3\%] & 18216 & 72 & 3.533 \\
+        \hline
+        bi32 lowsize & 13332 [2\%] & 14512 & 57 & 2.809 \\
+        \hline
+        ref & 14436 [2\%] & 15616 & 61 & 2.996 \\
+        \hline
+        ascon128a & & & & \\
+        \hline
+        armv7m & 20692 [3\%] & 21872 & 86 & 4.212 \\
+        \hline
+        armv7m lowsize & 13220 [2\%] & 14400 & 57 & 2.785 \\
+        \hline
+        armv7m small & 14444 [2\%] & 15624 & 62 & 3.032 \\
+        \hline
+        bi32 & 27252 [5\%] & 28432 & 112 & 5.499 \\
+        \hline
+        bi32 armv7m & 44964 [8\%] & 46144 & 181 & 8.889 \\
+        \hline
+        bi32 lowreg & 20844 [3\%] & 22024 & 87 & 4.270 \\
+        \hline
+        bi32 lowsize & 13644 [2\%] & 14824 & 58 & 2.857 \\
+        \hline
+        opt32 & 60812 [11\%] & 61992 & 243 & 11.938 \\
+        \hline
+        opt32 lowsize & 13468 [2\%] & 14648 & 58 & 2.842 \\
+        \hline
+        ref & 14484 [2\%] & 15664 & 62 & 3.041 \\
+        \hline
+        ascon128bi32 & & & & \\
+        \hline
+        bi32 & 20764 [3\%] & 21944 & 86 & 4.234 \\
+        \hline
+        bi32 armv7m & 35508 [6\%] & 36688 & 144 & 7.067 \\
+        \hline
+        bi32 lowreg & 16444 [3\%] & 17624 & 69 & 3.389 \\
+        \hline
+        bi32 lowsize & 13300 [2\%] & 14480 & 57 & 2.801 \\
+        \hline
+        ref & 13812 [2\%] & 14992 & 59 & 2.900 \\
+        \hline
+        ascon128 & & & & \\
+        \hline
+        armv7m & 19668 [3\%] & 20848 & 82 & 4.017 \\
+        \hline
+        armv7m lowsize & 13188 [2\%] & 14368 & 57 & 2.750 \\
+        \hline
+        armv7m small & 14052 [2\%] & 15232 & 60 & 2.939 \\
+        \hline
+        bi32 & 24300 [4\%] & 25480 & 100 & 4.914 \\
+        \hline
+        bi32 armv7m & 39444 [7\%] & 40624 & 159 & 7.815 \\
+        \hline
+        bi32 lowreg & 18924 [3\%] & 20104 & 79 & 3.891 \\
+        \hline
+        bi32 lowsize & 13604 [2\%] & 14784 & 58 & 2.849 \\
+        \hline
+        opt32 & 52620 [10\%] & 53800 & 211 & 10.365 \\
+        \hline
+        opt32 lowsize & 13428 [2\%] & 14608 & 58 & 2.845 \\
+        \hline
+        ref & 13852 [2\%] & 15032 & 59 & 2.899 \\
+        \hline
+    \end{tabular}
+\end{table}
+
 \begin{landscape}
     \begin{table}[]
         \caption{Prestazioni famiglia crypto AEAD nella fase di cifratura.}
@@ -922,6 +1332,128 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M lowsize, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, bi32 lowsize, opt32, opt32 lowsize e ref.
 
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia hash.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        asconhashabi32v12 & & & & \\
+        \hline
+        bi32 & 19852 [3\%] & 21032 & 83 & 4.066 \\
+        \hline
+        bi32 armv7m & 19140 [3\%] & 20320 & 80 & 3.921 \\
+        \hline
+        bi32 lowreg & 13508 [2\%] & 14688 & 58 & 2.843 \\
+        \hline
+        bi32 lowsize & 12380 [2\%] & 13560 & 53 & 2.605 \\
+        \hline
+        ref & 12380 [2\%] & 13560 & 53 & 2.603 \\
+        \hline
+        asconhashav12 & & & & \\
+        \hline
+        armv7m & 18812 [3\%] & 19992 & 79 & 3.871 \\
+        \hline
+        armv7m lowsize & 12260 [2\%] & 13440 & 53 & 2.593 \\
+        \hline
+        armv7m small & 12260 [2\%] & 13440 & 53 & 2.591 \\
+        \hline
+        bi32 & 20444 [3\%] & 21624 & 85 & 4.164 \\
+        \hline
+        bi32 armv7m & 19788 [3\%] & 20968 & 82 & 4.028 \\
+        \hline
+        bi32 lowreg & 14036 [2\%] & 15216 & 60 & 2.945 \\
+        \hline
+        bi32 lowsize & 12668 [2\%] & 13848 & 55 & 2.689 \\
+        \hline
+        opt32 & 27084 [5\%] & 28264 & 111 & 5.442 \\
+        \hline
+        opt32 lowsize & 12508 [2\%] & 13688 & 54 & 2.640 \\
+        \hline
+        ref & 12412 [2\%] & 13592 & 54 & 2.643 \\
+        \hline
+        asconhashbi32v12 & & & & \\
+        \hline
+        bi32 & 16644 [3\%] & 17824 & 70 & 3.443 \\
+        \hline
+        bi32 armv7m & 21156 [4\%] & 22336 & 88 & 4.311 \\
+        \hline
+        bi32 lowreg & 13508 [2\%] & 14688 & 58 & 2.837 \\
+        \hline
+        bi32 lowsize & 12380 [2\%] & 12380 & 53 & 2.603 \\
+        \hline
+        ref & 12292 [2\%] & 13472 & 53 & 2.604 \\
+        \hline
+        asconhashv12 & & & & \\
+        \hline
+        armv7m & 15980 [3\%] & 17160 & 68 & 3.330 \\
+        \hline
+        armv7m lowsize & 12260 [2\%] & 13440 & 53 & 2.591 \\
+        \hline
+        armv7m small & 12260 [2\%] & 13440 & 53 & 2.591 \\
+        \hline
+        bi32 & 17228 [3\%] & 18408 & 72 & 3.546 \\
+        \hline
+        bi32 armv7m & 21756 [4\%] & 22936 & 90 & 4.424 \\
+        \hline
+        bi32 lowreg & 14044 [2\%] & 15224 & 60 & 2.935 \\
+        \hline
+        bi32 lowsize & 12668 [2\%] & 13848 & 55 & 2.688 \\
+        \hline
+        opt32 & 32412 [6\%] & 33592 & 132 & 6.474 \\
+        \hline
+        opt32 lowsize & 12508 [2\%] & 13688 & 54 & 2.648 \\
+        \hline
+        ref & 12340 [2\%] & 13520 & 53 & 2.606 \\
+        \hline
+        asconxofav12 & & & & \\
+        \hline
+        armv7m & 18812 [3\%] & 19992 & 79 & 3.877 \\
+        \hline
+        armv7m lowsize & 12260 [2\%] & 13440 & 53 & 2.600 \\
+        \hline
+        armv7m small & 12260 [2\%] & 13440 & 53 & 2.591 \\
+        \hline
+        bi32 & 20444 [3\%] & 21624 & 85 & 4.172 \\
+        \hline
+        bi32 armv7m & 19788 [3\%] & 20968 & 82 & 4.038 \\
+        \hline
+        bi32 lowreg & 14036 [2\%] & 15216 & 60 & 2.936 \\
+        \hline
+        bi32 lowsize & 12668 [2\%] & 13848 & 55 & 2.689 \\
+        \hline
+        opt32 & 27084 [5\%] & 28264 & 111 & 5.442 \\
+        \hline
+        opt32 lowsize & 12508 [2\%] & 13688 & 54 & 2.641 \\
+        \hline
+        ref & 12404 [2\%] & 13584 & 54 & 2.640 \\
+        \hline
+        asconxofv12 & & & & \\
+        \hline
+        armv7m & 15980 [3\%] & 17160 & 68 & 3.337 \\
+        \hline
+        armv7m lowsize & 12260 [2\%] & 13440 & 53 & 2.594 \\
+        \hline
+        armv7m small & 12260 [2\%] & 13440 & 53 & 2.591 \\
+        \hline
+        bi32 & 17228 [3\%] & 18408 & 72 & 3.538 \\
+        \hline
+        bi32 armv7m & 21756 [4\%] & 22936 & 90 & 4.429 \\
+        \hline
+        bi32 lowreg & 14044 [2\%] & 15224 & 60 & 2.937 \\
+        \hline
+        bi32 lowsize & 12668 [2\%] & 13848 & 55 & 2.689 \\
+        \hline
+        opt32 & 32412 [6\%] & 33592 & 132 & 6.481 \\
+        \hline
+        opt32 lowsize & 12508 [2\%] & 13688 & 54 & 2.648 \\
+        \hline
+        ref & 12332 [2\%] & 13512 & 53 & 2.619 \\
+        \hline
+    \end{tabular}
+\end{table}
+
 \begin{landscape}
     \begin{table}[]
         \caption{Prestazioni famiglia hash nella fase di cifratura.}
@@ -1051,6 +1583,96 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 \subsubsection{Crypto auth}
 
 Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: ARMv7-M, ARMv7-M small, bi32, bi32 ARMv7-M, bi32 lowreg, opt32 e ref.
+
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia auth.}
+    \centering
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+         & Sketch & Eseguibile & Pagine & Loading time \\
+        \hline
+        asconmacav12 & & & & \\
+        \hline
+        armv7m & 19060 [3\%] & 20240 & 80 & 3.950 \\
+        \hline
+        armv7m small & 12580 [2\%] & 13760 & 54 & 2.652 \\
+        \hline
+        bi32 & 21276 [4\%] & 22456 & 88 & 4.330 \\
+        \hline
+        bi32 armv7m & 23420 [4\%] & 24600 & 97 & 4.762 \\
+        \hline
+        bi32 lowreg & 15348 [2\%] & 16528 & 65 & 3.193 \\
+        \hline
+        opt32 & 32212 [6\%] & 33392 & 131 & 6.431 \\
+        \hline
+        ref & 12764 [2\%] & 13944 & 55 & 2.689 \\
+        \hline
+        asconmacv12 & & & & \\
+        \hline
+        armv7m & 16236 [3\%] & 17416 & 69 & 3.378 \\
+        \hline
+        armv7m small & 12588 [2\%] & 13768 & 54 & 2.652 \\
+        \hline
+        bi32 & 18068 [3\%] & 19248 & 76 & 3.722 \\
+        \hline
+        bi32 armv7m & 25572 [4\%] & 26752 & 105 & 5.147 \\
+        \hline
+        bi32 lowreg & 15340 [2\%] & 16520 & 65 & 3.193 \\
+        \hline
+        opt32 & 37556 [7\%] & 38736 & 152 & 7.464 \\
+        \hline
+        ref & 12700 [2\%] & 13880 & 55 & 2.690 \\
+        \hline
+        asconprfav12 & & & & \\
+        \hline
+        armv7m & 19060 [3\%] & 20240 & 80 & 3.927 \\
+        \hline
+        armv7m small & 12580 [2\%] & 13760 & 54 & 2.653 \\
+        \hline
+        bi32 & 21268 [4\%] & 22448 & 88 & 4.329 \\
+        \hline
+        bi32 armv7m & 23396 [4\%] & 24576 & 96 & 4.716 \\
+        \hline
+        bi32 lowreg & 15324 [2\%] & 16504 & 65 & 3.191 \\
+        \hline
+        opt32 & 32212 [6\%] & 33392 & 131 & 6.431 \\
+        \hline
+        ref & 12764 [2\%] & 13944 & 55 & 2.689 \\
+        \hline
+        asconprfsv12 & & & & \\
+        \hline
+        armv7m & 16244 [3\%] & 17424 & 69 & 3.405 \\
+        \hline
+        armv7m small & 12588 [2\%] & 13768 & 54 & 2.655 \\
+        \hline
+        bi32 & 18180 [3\%] & 19360 & 76 & 3.734 \\ 
+        \hline
+        bi32 armv7m & 16500 [3\%] & 17680 & 70 & 3.434 \\
+        \hline
+        bi32 lowreg & 13868 [2\%] & 15048 & 59 & 2.899 \\
+        \hline
+        opt32 & 16836 [3\%] & 18016 & 71 & 3.476 \\
+        \hline
+        ref & 12508 [2\%] & 13688 & 54 & 2.640 \\
+        \hline
+        asconprfv12 & & & & \\
+        \hline
+        armv7m & 16236 [3\%] & 17416 & 69 & 3.383 \\
+        \hline
+        armv7m small & 12588 [2\%] & 13768 & 54 & 2.652 \\
+        \hline
+        bi32 & 18052 [3\%] & 19232 & 76 & 3.722 \\ 
+        \hline
+        bi32 armv7m & 25548 [4\%] & 26728 & 105 & 5.155 \\
+        \hline
+        bi32 lowreg & 15324 [2\%] & 16504 & 65 & 3.181 \\
+        \hline
+        opt32 & 37556 [7\%] & 38736 & 152 & 7.458 \\
+        \hline
+        ref & 12700 [2\%] & 13880 & 55 & 2.696 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \begin{landscape}
     \begin{table}[]
@@ -1244,11 +1866,33 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2GHz Broadcom BCM2837 con 1GB di RAM\cite{raspberry}. L'architettura della board non è presente nelle ottimizzazioni possibili fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
 
-\noindent Nelle tabelle sono presenti numerose celle con valore 1. Questo perché la quasi totalità di queste in realtà dovrebbero contenere 0: la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo. Essi non sono rilevati dalla suite di test. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
+\noindent Nelle tabelle dei tempi di esecuzione sono presenti numerose celle con valore 1. Questo perché la quasi totalità di queste in realtà dovrebbero contenere 0: la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo. Essi non sono rilevati dalla suite di test. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
 
 \subsubsection{Crypto AEAD}
 
 Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64, opt64 lowsize e ref.
+
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia AEAD.}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+\end{table}
 
 \begin{landscape}
     \begin{table}[]
@@ -1346,6 +1990,28 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 
 Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64, opt64 lowsize e ref.
 
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia AEAD.}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+\end{table}
+
 \begin{landscape}
     \begin{table}[]
         \caption{Prestazioni famiglia hash.}
@@ -1403,6 +2069,28 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 \subsubsection{Crypto auth}
 
 Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64 e ref.
+
+\begin{table}[h]
+    \caption{Spazio utilizzato famiglia AEAD.}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+    \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+             & Eseguibile \\
+            \hline
+            \hline
+        \end{tabular}
+    \end{minipage}
+\end{table}
 
 \begin{landscape}
     \begin{table}[]
@@ -1491,6 +2179,20 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 		\end{adjustbox}
 	\end{table}
 \end{landscape}
+
+\section{Analisi dei risultati}
+
+\subsection{Adafruit ItsyBitsy M0 Express}
+
+% Inserisci dei grafici magari
+
+\subsection{Arduino Due}
+
+% Inserisci dei grafici magari
+
+\subsection{RaspberryPi model 3B}
+
+% Inserisci dei grafici magari, sono da fare tutti
 
 \newpage
 
