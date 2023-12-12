@@ -224,7 +224,7 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
 
 \subsection{Compilazione}
 
-Per le board prive di sistema operativo è stato utilizzato il software Arduino IDE: il file di test veniva dapprima inserito in un progetto Arduino con i file che definivano l'implementazione scelta, successivamente compilato tramite il compilatore presente nella suite Arduino e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board senza sistema operativo, il file di test e i file dell'implementazione scelta venivano messi in una cartella, trasferiti sulla board tramite l'utility \textit{scp}, compilati con \textit{gcc} e infine eseguiti.
+Per le board prive di sistema operativo è stato utilizzato il software Arduino IDE: il file di test veniva dapprima inserito in un progetto Arduino con i file che definivano l'implementazione scelta, successivamente compilato tramite il compilatore presente nella suite Arduino e infine trasferito tramite porta seriale alla board sotto testing. Per quanto riguarda la board con il sistema operativo, il file di test e i file dell'implementazione scelta venivano messi in una cartella, trasferiti sulla board tramite l'utility \textit{scp}, compilati con \textit{gcc} e infine eseguiti.
 
 \subsection{Raccolta dei risultati}
 
@@ -261,7 +261,7 @@ if __name__ == "__main__":
   main(args.filename, args.port)
 \end{python}
 
-\noindent Come notiamo, lo script per mille iterazioni attende dalla porta seriale un'esecuzione del loop di test e dopo lo scrive nel file CSV corrispondente. \\
+\noindent Notiamo come lo script per mille iterazioni attende dalla porta seriale un'esecuzione del loop di test e dopo lo scrive nel file CSV corrispondente. \\
 
 \noindent Nella board con il sistema operativo la logica di raccolta dati è stata invece spostata dentro il programma di test, che quando rileva un tempo di esecuzione lo va a scrivere direttamente nel file CSV.
 
@@ -293,10 +293,10 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino 
             \end{table}
         \end{itemize}
         \item righe, che contengono:
-            \begin{enumerate}
+            \begin{itemize}
                 \item il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
                 \item il nome di una implementazione dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
-            \end{enumerate}
+            \end{itemize}
     \end{itemize}
     \item spazio utilizzato: contengono alcune informazioni sulle proprietà dei file eseguibili compilati. Per le due board prive di sistema operativo, queste informazioni sono state ricavate dal terminale dell'Arduino IDE, e sono le seguenti:
     \begin{itemize}
@@ -305,10 +305,10 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino 
         \item pagine: numero di pagine;
         \item loading time: secondi impiegati per trasferire il file eseguibile dal pc alla board.
     \end{itemize}
-    Per quanto riguarda invece la board con il sistema operativo, l'unica informazione disponibile è la grandezza del file eseguibile, ricavata tramite l'utility \textit{stat}.
+    Per quanto riguarda invece la board con il sistema operativo, l'unica informazione disponibile è la grandezza in byte del file eseguibile, ricavata tramite l'utility \textit{stat}. La struttura delle righe è la stessa della tabella precedente.
 \end{itemize}
 
-\noindent Per quanto riguarda le famiglie AEAD e autenticazione, saranno presenti tre tabelle: (1) tempi di esecuzione durante la fase di cifratura/autenticazione ; (2) tempi di esecuzione durante la fase di decifratura/verifica; (3) spazio utilizzato. Invece, per la famiglia hash, sarà presente una sola tabella con i tempi di esecuzione delle funzioni prese in esame e la tabella dello spazio utilizzato.
+\noindent Per quanto riguarda le famiglie AEAD e auth, saranno presenti tre tabelle: (1) tempi di esecuzione durante la fase di cifratura/autenticazione ; (2) tempi di esecuzione durante la fase di decifratura/verifica; (3) spazio utilizzato. Invece, per la famiglia hash, sarà presente una sola tabella con i tempi di esecuzione delle funzioni prese in esame e la tabella dello spazio utilizzato.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
@@ -1866,7 +1866,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 
 L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2GHz Broadcom BCM2837 con 1GB di RAM\cite{raspberry}. L'architettura della board non è presente nelle ottimizzazioni possibili fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
 
-\noindent Nelle tabelle dei tempi di esecuzione sono presenti numerose celle con valore 1. Questo perché la quasi totalità di queste in realtà dovrebbero contenere 0: la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo. Essi non sono rilevati dalla suite di test. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
+\noindent Nelle tabelle dei tempi di esecuzione sono presenti numerose celle con valore 1. Questo perché la quasi totalità di queste in realtà dovrebbero contenere 0: la board di Raspberry, essendo molto veloce, ha tempi sotto il microsecondo, che non possono essere rilevati dalla suite di test. Inoltre, sono presenti numerosi outliers, dovuti principalmente al sistema operativo durante la fase di scheduling dei processi.
 
 \subsubsection{Crypto AEAD}
 
@@ -1878,8 +1878,23 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            ascon128a & \\
+            \hline
+            opt64 & 30832 \\
+            \hline
+            opt64 lowsize & 18848 \\
+            \hline
+            ref & 30792 \\
+            \hline
+            ascon128 & \\
+            \hline
+            opt64 & 26488 \\
+            \hline
+            opt64 lowsize & 18600 \\
+            \hline
+            ref & 30520 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -1887,8 +1902,15 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            ascon80pq & \\
+            \hline
+            opt64 & 26488 \\
+            \hline
+            opt64 lowsize & 18600 \\
+            \hline
+            ref & 30496 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -1975,13 +1997,28 @@ Per la famiglia crypto AEAD sono stati testati tutti gli algoritmi proposti nell
 Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64, opt64 lowsize e ref.
 
 \begin{table}[h]
-    \caption{Spazio utilizzato famiglia AEAD.}
+    \caption{Spazio utilizzato famiglia hash.}
     \begin{minipage}[t]{0.5\linewidth}
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            asconhasha & \\
+            \hline
+            opt64 & 18192 \\
+            \hline
+            opt64 lowsize & 14192 \\
+            \hline
+            ref & 18104 \\
+            \hline
+            asconhash & \\
+            \hline
+            opt64 & 18192 \\
+            \hline
+            opt64 lowsize & 14192 \\
+            \hline
+            ref & 18152 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -1989,8 +2026,23 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            asconxofa & \\
+            \hline
+            opt64 & 18192 \\
+            \hline
+            opt64 lowsize & 14192 \\
+            \hline
+            ref & 18104 \\
+            \hline
+            asconxof & \\
+            \hline
+            opt64 & 18192 \\
+            \hline
+            opt64 lowsize & 14192 \\
+            \hline
+            ref & 18152 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -2047,13 +2099,30 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nelle seguenti implementazioni: opt64 e ref.
 
 \begin{table}[h]
-    \caption{Spazio utilizzato famiglia AEAD.}
+    \caption{Spazio utilizzato famiglia auth.}
     \begin{minipage}[t]{0.5\linewidth}
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            asconprfa & \\
+            \hline
+            opt64 & 18272 \\
+            \hline
+            ref & 18224 \\
+            \hline
+            asconprf & \\
+            \hline
+            opt64 & 18272 \\
+            \hline
+            ref & 18248 \\
+            \hline
+            asconprfs & \\
+            \hline
+            opt64 & 18392 \\
+            \hline
+            ref & 18360 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -2061,8 +2130,19 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
         \centering
         \begin{tabular}{|c|c|}
             \hline
-             & Eseguibile \\
+            Implementazione & Eseguibile \\
             \hline
+            asconmaca & \\
+            \hline
+            opt64 & 18272 \\
+            \hline
+            ref & 18224 \\
+            \hline
+            asconmac & \\
+            \hline
+            opt64 & 18272 \\
+            \hline
+            ref & 18248 \\
             \hline
         \end{tabular}
     \end{minipage}
@@ -2377,7 +2457,7 @@ Per la famiglia AEAD analizzeremo solo le prestazioni degli algoritmi "classici"
 
 In termini di tempi di esecuzione, nessuna implementazione riesce a dominare definitivamente le altre. \\
 
-\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ...  è risultata la migliore, seguita dalla ... e infine la ..., che si classifica ultima. Notiamo che ...
+\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione opt64 lowsize è risultata la migliore, seguita dalla ref e dalla opt64, che hanno praticamente la stessa grandezza.
 
 \begin{figure}[H]
     \centering
@@ -2393,7 +2473,7 @@ Per la famiglia hash analizzeremo solo le prestazioni degli algoritmi "classici"
 
 In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze di plain-text maggiori opt64 diventa la migliore e opt64 lowsize diventa la peggiore.
 
-\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ...  è risultata la migliore, seguita dalla ... e infine la ..., che si classifica ultima. Notiamo che ...
+\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione opt64 lowsize è risultata la migliore, seguita dalla ref e dalla opt64, anche se i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
@@ -2405,7 +2485,7 @@ In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna i
 
 In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze di plain-text maggiori opt64 diventa la migliore e opt64 lowsize diventa la peggiore.
 
-\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ...  è risultata la migliore, seguita dalla ... e infine la ..., che si classifica ultima. Notiamo che ...
+\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione opt64 lowsize è risultata la migliore, seguita dalla ref e dalla opt64, anche se i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
@@ -2419,9 +2499,9 @@ Per la famiglia auth analizzeremo le prestazioni degli algoritmi MAC e PRF.
 
 \paragraph{Algoritmi MAC}
 
-In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze di plain-text maggiori opt64 diventa la migliore e ref diventa la peggiore.
+In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze di plain-text maggiori opt64 diventa la migliore e ref diventa la peggiore. \\
 
-\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ...  è risultata la migliore, seguita dalla ..., che si classifica ultima. Notiamo che ...
+\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ref  è risultata la migliore, seguita dalla opt64, che si classifica ultima, anche se i due valori differiscono di un numero di byte compreso tra 24 e 48.
 
 \begin{figure}[H]
     \centering
@@ -2433,7 +2513,7 @@ In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna i
 
 In termini di tempi di esecuzione, nessuna implementazione riesce a dominare definitivamente l'altra. \\
 
-\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ...  è risultata la migliore, seguita dalla ..., che si classifica ultima. Notiamo che ...
+\noindent Se consideriamo invece la dimensione dell'eseguibile, l'implementazione ref  è risultata la migliore, seguita dalla opt64, che si classifica ultima, anche se i due valori differiscono di un numero di byte compreso tra 24 e 48.
 
 \begin{figure}[H]
     \centering
@@ -2441,11 +2521,12 @@ In termini di tempi di esecuzione, nessuna implementazione riesce a dominare def
     \caption{Plain-text di 0 byte con asconprfa}
 \end{figure}
 
-\subsubsection{Recap finale}
+\subsection{Recap finale}
 
-TODO analisi in base soprattutto alla grandezza degli eseguibili.
-
-% Dalle analisi precedenti, possiamo quindi affermare che le implementazioni bi32 armv7m e armv7m small sono risultate le migliori in ogni algoritmo considerato, mentre spesso l'implementazione ref si è trovata tra le peggiori implementazioni.
+A differenze delle board precedenti, il pool di implementazioni disponibili è molto ridotto, formato infatti dalle sole implementazioni opt64, opt64 lowsize e ref. Dalle analisi precedenti, possiamo affermare che l'implementazione opt64 sia la migliore per quanto riguarda i tempi di esecuzione, soprattutto su plain-text di grandezza maggiore. Se si vuole ottimizzare lo spazio utilizzato, perdendo un po' sul tempo di esecuzione, soprattutto sui plain-text di grandezza maggiore, allora l'implementazione opt64 lowsize è la scelta migliore. L'implementazione ref è nel mezzo e non ha senso considerarla, perchè: \begin{itemize}
+    \item se volessimo puntare sui tempi di esecuzione, è più lenta della opt64 ma con lo stesso spazio utilizzato;
+    \item se volessimo puntare sullo spazio utilizzato, è più pesante della opt64 lowsize ma con dei tempi di esecuzione molto simili.
+\end{itemize}
 
 \newpage
 
