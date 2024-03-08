@@ -1,0 +1,164 @@
+\chapter{Crypto}
+
+In questo capitolo si darà una definizione della lightweight cryptography e un'analisi della famiglia ASCON, sulla quale è stata eseguita l'attività di testing presentata nel capitolo successivo.
+
+\section{Lightweight Cryptography}
+
+La \textbf{lightweight cryptography}, o crittografia leggera, definisce una classe di algoritmi crittografici progettati per dispositivi con risorse limitate in termini di potenza computazionale, memoria o energia. Ovviamente, tutto il mondo IoT utilizza in modo massiccio questi algoritmi, viste le scarse risorse di board, sensori o microcontrollori, ma non sono gli unici: tra i dispositivi che utilizzano degli algoritmi lightweight sono presenti anche smart card e sistemi embedded.
+
+\section{ASCON}
+
+ASCON è una famiglia di algoritmi di cifratura autenticati e hash progettati per essere utilizzati in ambito lightweight: non a caso è stato selezionato come nuovo standard per la crittografia leggera nel concorso NIST ``Lightweight Cryptography'',
+% se usi ``'' al posto di "" LaTeX te le mette in "pairs". Ti conviene sostituirlo in tutto il documento con qualcosa di Regex perché è oggettivamente utile fare ``'' (premi Alt Gr + apostrofo/punto di domanda; ma sicuro lo sai già)
+vincendo, nel 2023, la gara indetta dal NIST nel 2019. Ascon è stato anche scelto come migliore algoritmo per la cifratura autenticata leggera nel concorso CAESAR, dal 2014 al 2019\cite{ascon-overview}. \\
+
+\noindent Alcune delle caratteristiche principali di ASCON sono:
+\begin{itemize}
+    \item Cifratura autenticata e hash con una singola permutazione leggera;
+    \item Operazioni basate su sponge, con una permutazione SPN personalizzabile;
+    \item Facile da implementare in software e hardware;
+    \item Ottimo per i dispositivi con risorse limitate, dato che utilizza uno stato ridotto ed effettua semplici permutazioni.
+\end{itemize}
+\noindent ASCON deve la sua nascita al team formato da Christoph Dobraunig, Maria Eichlseder, Florian Mendel e Martin Schläffer\cite{ascon-contact}, un gruppo di crittografi che lavorano per la Graz University of Technology, Infineon Technologies, Intel Labs e Radboud University\cite{ascon-overview}.
+
+\subsection{Suddivisione in famiglie}
+
+La suite ASCON propone tre famiglie di algoritmi: \begin{itemize}
+    \item Authenticated Encryption with Associated Data (AEAD);
+    \item Funzioni hash;
+    \item Funzioni auth.
+\end{itemize}
+\noindent Nel loro repository di GitHub\cite{github} è presente anche una famiglia ``ibrida'', che unisce le funzionalità AEAD a quelle hash.
+
+\subsubsection{Authenticated Encryption with Associated Data}
+
+Per quanto riguarda la cifratura autenticata, ASCON utilizza un approccio duplex-sponge\cite{ascon-specification} % secondo me ha senso mettere il \cite{} dove introduci il concetto, non dove lo speghi; quindi immediatamente
+,ovvero un tipo di architettura crittografica che combina due concetti:
+\begin{enumerate}[label=\Roman*.] % è solo per estetica, poi as you wish
+    \item \textbf{Sponge}: la "spugna" è una struttura formata che utilizza una funzione hash (o in generale una funzione pseudorandomica) per ``assorbire'' i dati in ingresso e ``spremere'' i dati in uscita.
+    \item \textbf{Duplex}: la spugna descritta al punto precedente è in grado di elaborare dati sia in ingresso che in uscita contemporaneamente, permettendo una maggiore efficienza nell'implementazione degli algoritmi.
+\end{enumerate}
+\noindent La spugna contiene uno stato interno, utilizzato per generare un tag di autenticazione associato al ciphertext: questo permette un ulteriore livello di sicurezza, garantendo l'integrità e l'autenticità dei dati prodotti. \\
+
+\noindent L'approccio appena presentato viene utilizzato in ASCON in quattro fasi\cite{ascon-specification}:
+\begin{enumerate}
+    \item \textbf{Inizializzazione}: lo stato interno della spugna viene inizializzato con la chiave $K$ di 128 bit e il nonce, anch'esso di 128 bit; nonce è l'abbreviazione di ``number used once'', ed è un numero randomico utilizzato nella computazione;
+    \item \textbf{Elaborazione dei dati associati}: viene aggiornato lo stato interno con blocchi di dati associati, chiamati $A_i$;
+    \item \textbf{Elaborazione del plaintext}: i blocchi $P_i$ del plaintext sono ``iniettati'' nello stato interno ed estratti sotto forma di blocchi $C_i$ di ciphertext;
+    \item \textbf{Finalizzazione}: viene ``iniettata'' la chiave $K$ nello stato interno per estrarre il tag $T$ di autenticazione.
+\end{enumerate}
+\noindent Ogni volta che viene iniettato un blocco nello stato interno viene applicata una permutazione, più o meno pesante in base al round, alla capacità della spugna e alla variante dell'algoritmo utilizzato. \\
+
+\noindent Gli algoritmi presenti in questa famiglia sono \texttt{ascon128}, \texttt{ascon128a} e \texttt{ascon80pq}, ma solo i primi due sono stati analizzati nel capitolo successivo: questo perché l'ultimo algoritmo appartiene alla famiglia degli algoritmi post-quantum.
+
+\subsubsection{Funzioni hash}
+
+Come la famiglia AEAD, anche la famiglia delle funzioni hash è di tipo sponge-based e utilizza le stesse permutazioni, utilizzate durante la fase di assorbimento e spremitura. Per generare l'hash di un plaintext $M$ quest'ultimo viene diviso in blocchi $M_i$ di 64 bit ciascuno, "assorbito" dalla spugna e "spremuto" in blocchi $H_i$ di 64 bit. \\
+
+\noindent Gli algoritmi presenti in questa famiglia sono \texttt{asconhash} e \texttt{asconhasha} per quanto riguarda le funzioni hash con output di grandezza 256 bit, e \texttt{asconxof} e \texttt{asconxofa} per quanto riguarda le extendable output function, ovvero funzioni hash con output di grandezza arbitrario\cite{ascon-specification}.
+
+\subsubsection{Funzioni auth}
+
+La situazione della famiglia di funzioni auth è praticamente uguale a quella delle funzioni hash. \\
+
+\noindent Gli algoritmi presenti in questa famiglia sono \texttt{asconmac} e \texttt{asconmaca} per quanto riguarda le funzioni MAC (Message Authentication Code) e \texttt{asconprf}, \texttt{asconprfa} e \texttt{asconprfs} per quanto riguarda le funzioni PRF (Pseudo Random Functions).\cite{ascon-specification-pdf}. L'ultimo algoritmo citato è una versione "short" degli algoritmi PRF utilizzato nelle PBKDF (Password-Based Key Derivation Function) oppure come tecnica per l'autenticazione dei puntatori.
+
+\subsection{Ottimizzazioni proposte}
+
+Nel repository GitHub di ASCON sono presenti una serie di ottimizzazioni in base all'architettura hardware che si sta utilizzando. Per ogni algoritmo è sempre presente l'implementazione ref, ovvero quella di riferimento. \\
+
+\noindent La prima classe di ottimizzazioni è scritta totalmente in C e contiene le seguenti implementazioni\cite{github}.
+
+\begin{table}[H]
+    \centering
+	\begin{tabular}{|m{0.22\textwidth}<{\centering}||m{0.40\textwidth}<{\centering}|m{0.30\textwidth}<{\centering}|}
+		\hline
+        \textbf{Nome} & \textbf{Cosa viene ottimizzato} & \textbf{Architetture supportate} \\
+		\hline \hline
+        opt32 e opt64 & Tempo & 32 e 64 bit \\
+        \hline
+        opt32 lowsize e opt64 lowsize & Spazio & 32 e 64 bit \\
+        \hline
+        bi32 & Tempo tramite bit-interleaving & 32 bit \\
+        \hline
+        bi32 lowreg & Uso dei registri tramite bit-interleaving & 32 bit \\
+        \hline
+        bi32 lowsize & Spazio tramite bit-interleaving & 32 bit \\
+        \hline
+        esp32 & - & ESP32 a 32 bit \\
+        \hline
+        opt8 & Tempo e spazio & 8 bit \\
+        \hline
+        bi8 & Tempo tramite bit-interleaving & 8 bit \\
+        \hline
+    \end{tabular}
+    \caption{Prima classe di ottimizzazioni.}
+\end{table}
+
+\noindent La seconda classe di ottimizzazioni sostituisce il C con l'assembly ASM puro\cite{github}.
+
+\begin{table}[H]
+    \centering
+	\begin{tabular}{|m{0.20\textwidth}<{\centering}||m{0.42\textwidth}<{\centering}|m{0.30\textwidth}<{\centering}|}
+		\hline
+		\textbf{Nome} & \textbf{Cosa viene ottimizzato} & \textbf{Architetture supportate} \\
+        \hline \hline
+        asm esp32 & Tempo tramite funnel-shift & ESP32 a 32 bit \\
+        \hline
+        asm rv32i & Tempo tramite base instruction set & RV32I a 32 bit \\
+        \hline
+        asm rv32b & Tempo tramite bitmanip & RV32B a 32 bit \\
+        \hline
+        asm fsr rv32b & Tempo tramite funnel-shift e bitmanip & RV32B a 32 bit \\
+        \hline
+        asm bi32 rv32b & Tempo tramite bit-interleaving e bitmanip & RV32B a 32 bit \\
+        \hline
+    \end{tabular}
+    \caption{Seconda classe di ottimizzazioni.}
+\end{table}
+
+\noindent La terza classe di ottimizzazioni utilizza un approccio ibrido tra il C e l'inline assembly ASM\cite{github}.
+
+\begin{table}[H]
+    \centering
+	\begin{tabular}{|m{0.24\textwidth}<{\centering}||m{0.38\textwidth}<{\centering}|m{0.30\textwidth}<{\centering}|}
+		\hline
+		\textbf{Nome} & \textbf{Cosa viene ottimizzato} & \textbf{Architetture supportate} \\
+        \hline \hline
+        avx512 & Tempo & AVX512 a 320 bit \\
+        \hline
+        neon & Tempo & ARM NEON a 64 bit \\
+        \hline
+        armv6, armv6m e armv7m & Tempo & ARMv6, ARMv6-M e ARMv7-M a 32 bit \\
+        \hline
+        armv6 lowsize, armv6m lowsize e armv7m lowsize & Spazio & ARMv6, ARMv6-M e ARMv7-M a 32 bit \\
+        \hline
+        armv7m small & Tempo e spazio & ARMv7-M a 32 bit \\
+        \hline
+        bi32 armv6, bi32 armv6m e bi32 armv7m & Tempo tramite bit-interleaving & ARMv6, ARMv6-M e ARMv7-M a 32 bit \\
+        \hline
+        bi32 armv7m small & Tempo e spazio tramite bit-interleaving & ARMv7-M a 32 bit \\
+        \hline
+        avr & Tempo e spazio & AVR a 8 bit \\
+        \hline
+        avr lowsize & Spazio & AVR a 8 bit \\
+        \hline
+    \end{tabular}
+    \caption{Terza classe di ottimizzazioni.}
+\end{table}
+
+\noindent La quarta e ultima classe di ottimizzazioni utilizza un high-level masked C e l'inline assembly ASM\cite{github}. Queste implementazioni sono utilizzate come punto di partenza per generare specifiche implementazioni che dipendono fortemente dal dispositivo utilizzato, sempre utilizzando il C o l'assembly ASM.
+
+\begin{table}[H]
+    \centering
+	\begin{tabular}{|m{0.24\textwidth}<{\centering}||m{0.38\textwidth}<{\centering}|m{0.30\textwidth}<{\centering}|}
+		\hline
+		\textbf{Nome} & \textbf{Cosa viene ottimizzato} & \textbf{Architetture supportate} \\
+        \hline \hline
+        protected bi32 armv6 & Tempo tramite masked bit interleaving & ARMv6 a 32 bit \\
+        \hline
+        protected bi32 armv6 leveled & Tempo tramite masked e leveled bit interleaving & ARMv6 a 32 bit \\
+        \hline
+    \end{tabular}
+    \caption{Quarta classe di ottimizzazioni.}
+\end{table}
