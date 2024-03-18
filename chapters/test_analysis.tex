@@ -1,19 +1,19 @@
-\chapter{Testing e analisi (COMPLETATO)}
+\chapter{Testing e analisi}
 
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plain-text e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono "prive" di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione "Raspberry Pi OS". \
+Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni di autenticazione. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plaintext e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono prive di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione ``Raspberry Pi OS''. \
 
-\noindent In questo capitolo verranno usati i termini "algoritmo" per indicare un algoritmo di una data famiglia e "implementazione" per indicare un'implementazione di un dato algoritmo di una data famiglia. Viene fatto questo per evitare di ripetere ogni volta "una data implementazione di un dato algoritmo di una data famiglia".
+\noindent In questo capitolo verranno usati i termini ``algoritmo'' per indicare un algoritmo di una data famiglia e ``implementazione'' per indicare un'implementazione di un dato algoritmo di una data famiglia. Viene fatto questo per evitare di ripetere ogni volta ``una data implementazione di un dato algoritmo di una data famiglia''.
 
 \section{Suite di test}
 
-Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di una implementazione scelta, usando di volta in volta diverse grandezze di plain-text e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni per l'implementazione in esame, testando plain-text e dati associati di grandezze minime, massime – secondo i test definiti da ASCON – e intermedie significative.
+Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio repository GitHub una serie di test che possono essere compilati ed eseguiti su ogni architettura supportata. I test forniti eseguivano mediamente mille esecuzioni di una implementazione scelta, usando di volta in volta diverse grandezze di plaintext e di dati associati. Il test utilizzato per i risultati presenti in questo report esegue al massimo nove esecuzioni per l'implementazione in esame, testando plaintext e dati associati di grandezze minime, massime – secondo i test definiti da ASCON – e intermedie significative.
 
 \subsection{Pseudocodice}
 
 \begin{algorithm}
-    \caption{Testing con varie lunghezze di plain-text e dati associati.}
+    \caption{Testing con varie lunghezze di plaintext e dati associati.}
     \begin{algorithmic}[1]
-        \Require{Lunghezza $mlen$ del plain-text.}
+        \Require{Lunghezza $mlen$ del plaintext.}
         \Require{Lunghezza $adlen$ dei dati associati (solo AEAD).}
 
         \LComment{Generazione di chiave, nonce e dati associati.}
@@ -22,7 +22,7 @@ Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio reposito
         \State $ad \gets$ \Call{GENERATE\_AD}{$adlen$}
         \State \phantom{}
 
-        \LComment{Generazione del plain-text da testare.}
+        \LComment{Generazione del plaintext da testare.}
         \State $pt \gets$ \Call{GENERATE\_PT}{$mlen$}
         \State \phantom{}
 
@@ -68,9 +68,9 @@ Per poter partecipare alla gara del NIST, ASCON ha inserito nel proprio reposito
     \end{algorithmic}
 \end{algorithm}
 
-Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, creata modificando leggermente quella fornita da ASCON per poter rilevare i tempi di esecuzione. Per avere dei dati consistenti, la funzione di test viene chiamata mille volte per ogni grandezza di plain-text e dati associati in esame.
+Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, creata modificando leggermente quella fornita da ASCON per poter rilevare i tempi di esecuzione. Per avere dei dati consistenti, la funzione di test viene chiamata mille volte per ogni grandezza di plaintext e dati associati in esame.
 
-\noindent Per inserire i risultati come righe di un file CSV facilmente interrogabili, il programma che richiama la funzione di test esegue per mille volte un loop, nel quale vengono usate in sequenza le varie grandezze di plain-text e dati associati, così da avere, per ogni riga del file CSV, i tempi di esecuzione di un campionamento sulle lunghezze da testare.
+\noindent Per inserire i risultati come righe di un file CSV facilmente interrogabili, il programma che richiama la funzione di test esegue per mille volte un loop, nel quale vengono usate in sequenza le varie grandezze di plaintext e dati associati, così da avere, per ogni riga del file CSV, i tempi di esecuzione di un campionamento sulle lunghezze da testare.
 
 \begin{algorithm}
     \caption{Come viene chiamata la funzione di test.}
@@ -85,9 +85,9 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
     \end{algorithmic}
 \end{algorithm}
 
-\noindent L'header di ogni file CSV è composto da celle nel formato "\textit{NB-M}", con:
+\noindent L'header di ogni file CSV è composto da celle nel formato ``\textit{NB-M}'', con:
 \begin{itemize}
-    \item \textit{N}: grandezza in byte del plain-text testato;
+    \item \textit{N}: grandezza in byte del plaintext testato;
     \item \textit{B}: indica appunto che la grandezza $N$ è in byte;
     \item \textit{M}: modalità, che per AEAD può essere \textit{E} (encryption) oppure \textit{D} (decryption), per autenticazione può essere \textit{A} (authentication) oppure \textit{V} (verify) mentre per hash questo campo non è presente.
 \end{itemize}
@@ -99,7 +99,7 @@ Lo pseudocodice nella pagina successiva mostra la funzione di test utilizzata, c
 		0B-E & 0B-D & 1B-E & 1B-D & 8B-E & 8B-D & 16B-E & 16B-D \\
 		\hline
     \end{tabular}
-    \caption{Header AEAD con plain-text da 0, 1 8 e 16 byte.}
+    \caption{Header AEAD con plaintext da 0, 1 8 e 16 byte.}
 \end{table}
 
 \subsection{Compilazione}
@@ -108,7 +108,7 @@ Per le board prive di sistema operativo è stato utilizzato il software Arduino 
 
 \subsection{Raccolta dei risultati}
 
-Per le due board prive di sistema operativo, i risultati delle mille esecuzioni dei test di varie grandezze di plain-text e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file CSV.
+Per le due board prive di sistema operativo, i risultati delle mille esecuzioni dei test di varie grandezze di plaintext e dati associati vengono inviati sulla porta seriale e intercettati da uno script Python che li inserisce in file CSV.
 
 \begin{python}
 import argparse, os, serial
@@ -155,9 +155,9 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino 
 \begin{itemize}
     \item tempi di esecuzione: contengono, appunto, i tempi di esecuzione, raccolti per implementazione e algoritmo; queste tabelle sono organizzate nel seguente modo:
     \begin{itemize}
-        \item header: contiene celle nel formato "\textit{N-V}", dove:
+        \item header: contiene celle nel formato ``\textit{N-V}'', dove:
         \begin{itemize}
-            \item $N$: grandezza in byte del plain-text testato;
+            \item $N$: grandezza in byte del plaintext testato;
             \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
             \begin{enumerate}[label=(\arabic*)]
                 \item m: valore minimo;
@@ -171,7 +171,7 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: Arduino 
             		0-m & 0-a & 0-M & 1-m & 1-a & 1-M & 8-m & 8-a & 8-M \\
             		\hline
                 \end{tabular}
-                \caption{Header tabella con plain-text da 0, 1 e 8 byte.}
+                \caption{Header tabella con plaintext da 0, 1 e 8 byte.}
             \end{table}
         \end{itemize}
         \item righe, che contengono:
@@ -953,7 +953,7 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \subsection{Arduino Due}
 
-La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel SAM3X8E ARM Cortex-M3\cite{arduino}. L'architettura della board è ARMv7-M, presente nelle ottimizzazioni possibili fornite da ASCON\cite{arm}.
+La seconda board testata è un prodotto Arduino, con un processore 32 bit Atmel SAM3X8E ARM Cortex-M3 a 84 MHz e 96 KB di SRAM\cite{arduino}. L'architettura della board è ARMv7-M, presente nelle ottimizzazioni possibili fornite da ASCON\cite{arm}.
 
 \subsubsection{Crypto AEAD}
 
@@ -2144,90 +2144,90 @@ I grafici seguenti contengono sull'asse delle $x$ i nomi delle implementazioni t
 
 \paragraph{Algoritmi bi32}
 
-In termini di tempi di esecuzione, l'implementazione bi32 armv6m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni bi32 e ref; invece le implementazioni bi32 lowreg e bi32 lowsize hanno avuto esito opposto, occupando a rotazione le prime due posizioni in tutte le grandezze di plain-text. \\
+In termini di tempi di esecuzione, l'implementazione bi32 armv6m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni bi32 e ref; invece le implementazioni bi32 lowreg e bi32 lowsize hanno avuto esito opposto, occupando a rotazione le prime due posizioni in tutte le grandezze di plaintext. \\
 
-\noindent Considerando invece la dimensione dell'eseguibile, l'implementazione bi32 lowsize è la migliore in tutte le grandezze di plain-text, seguita poco dopo dalla bi32 armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore è la ref, la quale si era classificata bene nella classifica precedente.
+\noindent Considerando invece la dimensione dell'eseguibile, l'implementazione bi32 lowsize è la migliore in tutte le grandezze di plaintext, seguita poco dopo dalla bi32 armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore è la ref, la quale si era classificata bene nella classifica precedente.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/ascon128abi32.pdf}
-    \caption{Plain-text di 0 byte con ascon128abi32.}
+    \caption{Plaintext di 0 byte con ascon128abi32.}
 \end{figure}
 
 \paragraph{Algoritmi no bi32}
 
-In termini di tempi di esecuzione, l'implementazione armv6m si classifica prima in tutte le grandezze di plain-text, seguita da armv6m lowsize e bi32 armv6m, mentre le implementazioni bi32 lowreg e opt32 lowsize sono le peggiori. \\
+In termini di tempi di esecuzione, l'implementazione armv6m si classifica prima in tutte le grandezze di plaintext, seguita da armv6m lowsize e bi32 armv6m, mentre le implementazioni bi32 lowreg e opt32 lowsize sono le peggiori. \\
 
-\noindent Per quanto riguarda la dimensione dell'eseguibile, le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite poco dopo dalla armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. Le implementazioni peggiori invece sono state la opt32 e la ref, con un'occupazione dello spazio circa il quadruplo dell'implementazione migliore.
+\noindent Per quanto riguarda la dimensione dell'eseguibile, le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite poco dopo dalla armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. Le implementazioni peggiori invece sono state la opt32 e la ref, con un'occupazione dello spazio circa il quadruplo dell'implementazione migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/ascon128a.pdf}
-    \caption{Plain-text di 0 byte con ascon128a.}
+    \caption{Plaintext di 0 byte con ascon128a.}
 \end{figure}
 
 \subsubsection{Crypto hash}
 
 \paragraph{Algoritmi bi32}
 
-In termini di tempi di esecuzione, l'implementazione bi32 armv6m è risultata la migliore in tutte le grandezze di plain-text, seguita a pari merito dalle altre implementazioni. Per plain-text fino a 64 byte, l'implementazione ref è stata la peggiore, mentre è diventata la seconda più veloce con plain-text più grandi, lasciando il primo posto come peggiore all'implementazione bi32 lowsize. \\
+In termini di tempi di esecuzione, l'implementazione bi32 armv6m è risultata la migliore in tutte le grandezze di plaintext, seguita a pari merito dalle altre implementazioni. Per plaintext fino a 64 byte, l'implementazione ref è stata la peggiore, mentre è diventata la seconda più veloce con plaintext più grandi, lasciando il primo posto come peggiore all'implementazione bi32 lowsize. \\
 
-\noindent Per la dimensione dell'eseguibile, l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plain-text, seguita poco dopo dalla bi32 armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore invece è la ref, con una dimensione doppia rispetto a quella migliore.
+\noindent Per la dimensione dell'eseguibile, l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plaintext, seguita poco dopo dalla bi32 armv6m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore invece è la ref, con una dimensione doppia rispetto a quella migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/asconhashabi32.pdf}
-    \caption{Plain-text di 0 byte con asconhashabi32.}
+    \caption{Plaintext di 0 byte con asconhashabi32.}
 \end{figure}
 
 \paragraph{Algoritmi no bi32}
 
-In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plain-text, anche se le implementazioni armv6m lowsize e bi32 armv6m hanno tempi molto simili; le implementazioni opt32 lowsize e ref invece sono risultate le peggiori. \\
+In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plaintext, anche se le implementazioni armv6m lowsize e bi32 armv6m hanno tempi molto simili; le implementazioni opt32 lowsize e ref invece sono risultate le peggiori. \\
 
-\noindent Come prima, nella la dimensione dell'eseguibile le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite poco dopo dalla armv6m. L'implementazione peggiore invece è la ref, che si riconferma la peggiore implementazione: in questo caso ha occupato quasi il triplo dello spazio della migliore implementazione.
+\noindent Come prima, nella la dimensione dell'eseguibile le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite poco dopo dalla armv6m. L'implementazione peggiore invece è la ref, che si riconferma la peggiore implementazione: in questo caso ha occupato quasi il triplo dello spazio della migliore implementazione.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/asconhasha.pdf}
-    \caption{Plain-text di 0 byte con asconhasha.}
+    \caption{Plaintext di 0 byte con asconhasha.}
 \end{figure}
 
 \paragraph{Algoritmi XOF}
 
-In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni armv6m lowsize e bi32 armv6m, mentre le implementazioni opt32 lowsize e ref sono risultate le peggiori. \\
+In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni armv6m lowsize e bi32 armv6m, mentre le implementazioni opt32 lowsize e ref sono risultate le peggiori. \\
 
-\noindent Osservando la dimensione dell'eseguibile, le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite poco dopo dalla armv6m. L'implementazione peggiore invece è la ref, occupando quasi il triplo dello spazio che occupa l'implementazione migliore e confermando, come negli algoritmi no bi32, la sua posizione generale pessima.
+\noindent Osservando la dimensione dell'eseguibile, le implementazioni con lowsize nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite poco dopo dalla armv6m. L'implementazione peggiore invece è la ref, occupando quasi il triplo dello spazio che occupa l'implementazione migliore e confermando, come negli algoritmi no bi32, la sua posizione generale pessima.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/asconxofa.pdf}
-    \caption{Plain-text di 0 byte con asconxofa.}
+    \caption{Plaintext di 0 byte con asconxofa.}
 \end{figure}
 
 \subsubsection{Crypto auth}
 
 \paragraph{Algoritmi MAC}
 
-In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni bi32 armv6m e opt32, anche se quest'ultima è più lenta di circa il 21/27\% rispetto alla prima classificata se consideriamo l'algoritmo asconmaca; le implementazioni bi32, bi32 lowreg e ref si contendono invece i primi posti come peggiori. \\
+In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni bi32 armv6m e opt32, anche se quest'ultima è più lenta di circa il 21/27\% rispetto alla prima classificata se consideriamo l'algoritmo asconmaca; le implementazioni bi32, bi32 lowreg e ref si contendono invece i primi posti come peggiori. \\
 
 \noindent Considerando la dimensione dell'eseguibile, l'implementazione armv6m è ancora la migliore, confermandosi come migliore implementazione in ogni aspetto, seguita dalle implementazioni bi32 armv6m e bi32 lowreg. Le implementazioni peggiori invece sono la opt32 e la ref, con una dimensione doppia rispetto a quella migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/asconmaca.pdf}
-    \caption{Plain-text di 0 byte con asconmaca.}
+    \caption{Plaintext di 0 byte con asconmaca.}
 \end{figure}
 
 \paragraph{Algoritmi PRF}
 
-In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni bi32 armv6m e opt32 hanno tempi molto simili, mentre le implementazioni bi32, bi32 lowreg e ref sono risultate le peggiori. \\
+In termini di tempi di esecuzione, l'implementazione armv6m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni bi32 armv6m e opt32 hanno tempi molto simili, mentre le implementazioni bi32, bi32 lowreg e ref sono risultate le peggiori. \\
 
 \noindent Osservando invece la dimensione dell'eseguibile, l'implementazione armv6m è ancora la migliore, confermandosi come migliore implementazione in ogni aspetto, seguita dalle implementazioni bi32 armv6m e bi32 lowreg. Le implementazioni peggiori invece sono la opt32 e la ref, con una dimensione doppia rispetto a quella migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{adafruit/asconprfa.pdf}
-    \caption{Plain-text di 0 byte con asconprfa.}
+    \caption{Plaintext di 0 byte con asconprfa.}
 \end{figure}
 
 \subsubsection{Recap finale}
@@ -2240,90 +2240,90 @@ Dalle analisi precedenti, possiamo quindi affermare che le implementazioni armv6
 
 \paragraph{Algoritmi bi32}
 
-In termini di tempi di esecuzione, l'implementazione bi32 armv7m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni bi32 generiche, mentre l'implementazione ref è risultata la peggiore: infatti, risulta quasi tre volte più lenta della seconda peggiore e poco meno di dieci volte più lenta di quella migliore. \\
+In termini di tempi di esecuzione, l'implementazione bi32 armv7m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni bi32 generiche, mentre l'implementazione ref è risultata la peggiore: infatti, risulta quasi tre volte più lenta della seconda peggiore e poco meno di dieci volte più lenta di quella migliore. \\
 
-\noindent Nello studio della dimensione dell'eseguibile l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plain-text, seguita dalla ref, che si riprende dopo la pessima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore invece è la bi32 armv7m, che invece era la migliore nei tempi di esecuzione.
+\noindent Nello studio della dimensione dell'eseguibile l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plaintext, seguita dalla ref, che si riprende dopo la pessima posizione ottenuta nei tempi di esecuzione. L'implementazione peggiore invece è la bi32 armv7m, che invece era la migliore nei tempi di esecuzione.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/ascon128abi32.pdf}
-    \caption{Plain-text di 0 byte con ascon128abi32.}
+    \caption{Plaintext di 0 byte con ascon128abi32.}
 \end{figure}
 
 \paragraph{Algoritmi no bi32}
 
-In termini di tempi di esecuzione, l'implementazione armv7m small è risultata la migliore in tutte le grandezze di plain-text, seguita dalle implementazioni bi32 armv7m, armv7m lowsize e armv7m, mentre l'implementazione ref è risultata la peggiore di quasi quattro volte rispetto alla migliore. \\
+In termini di tempi di esecuzione, l'implementazione armv7m small è risultata la migliore in tutte le grandezze di plaintext, seguita dalle implementazioni bi32 armv7m, armv7m lowsize e armv7m, mentre l'implementazione ref è risultata la peggiore di quasi quattro volte rispetto alla migliore. \\
 
-\noindent Per quanto riguarda la dimensione dell'eseguibile, le implementazioni con lowsize e small nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite dalla ref, che si riprende dopo la pessima posizione ottenuta nei tempi di esecuzione, e dalla armv7m small, che si dimostra quindi un'ottima soluzione anche per lo spazio occupato. L'implementazione peggiore invece è la ref, occupando quasi il quadruplo dello spazio che occupa l'implementazione migliore.
+\noindent Per quanto riguarda la dimensione dell'eseguibile, le implementazioni con lowsize e small nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite dalla ref, che si riprende dopo la pessima posizione ottenuta nei tempi di esecuzione, e dalla armv7m small, che si dimostra quindi un'ottima soluzione anche per lo spazio occupato. L'implementazione peggiore invece è la ref, occupando quasi il quadruplo dello spazio che occupa l'implementazione migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/ascon128a.pdf}
-    \caption{Plain-text di 0 byte con ascon128a.}
+    \caption{Plaintext di 0 byte con ascon128a.}
 \end{figure}
 
 \subsubsection{Crypto hash}
 
 \paragraph{Algoritmi bi32}
 
-In termini di tempi di esecuzione, l'implementazione bi32 armv7m è risultata la migliore in tutte le grandezze di plain-text, seguita dalle altre implementazioni bi32. L'implementazione ref è invece la peggiore, che è oltre tre volte più lenta della seconda peggiore e dieci volte più lenta di quella migliore. \\
+In termini di tempi di esecuzione, l'implementazione bi32 armv7m è risultata la migliore in tutte le grandezze di plaintext, seguita dalle altre implementazioni bi32. L'implementazione ref è invece la peggiore, che è oltre tre volte più lenta della seconda peggiore e dieci volte più lenta di quella migliore. \\
 
-\noindent Per la dimensione dell'eseguibile, l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plain-text, seguita dalla ref, che si riprende dopo la pessima posizione nei tempi di esecuzione. Le implementazioni peggiori sono invece la bi32 armv7m, che tuttavia compensa con il migliore tempo di esecuzione, e la bi32.
+\noindent Per la dimensione dell'eseguibile, l'implementazione bi32 lowsize è risultata la migliore in tutte le grandezze di plaintext, seguita dalla ref, che si riprende dopo la pessima posizione nei tempi di esecuzione. Le implementazioni peggiori sono invece la bi32 armv7m, che tuttavia compensa con il migliore tempo di esecuzione, e la bi32.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/asconhashabi32.pdf}
-    \caption{Plain-text di 0 byte con asconhashabi32.}
+    \caption{Plaintext di 0 byte con asconhashabi32.}
 \end{figure}
 
 \paragraph{Algoritmi no bi32}
 
-In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m lowsize sono risultate le migliori, con la bi32 armv7m che diventa la migliore se la grandezza dei plain-text aumenta, mentre le implementazioni della famiglia opt32 e ref sono risultate le peggiori, anche se quest'ultima è più lenta del 23/27\% rispetto alle altre. \\
+In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m lowsize sono risultate le migliori, con la bi32 armv7m che diventa la migliore se la grandezza dei plaintext aumenta, mentre le implementazioni della famiglia opt32 e ref sono risultate le peggiori, anche se quest'ultima è più lenta del 23/27\% rispetto alle altre. \\
 
-\noindent Oltre alla classica lowsize, nella dimensione dell'eseguibile le implementazioni con lowreg e small nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite poco dopo dalla bi32 armv7m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione, e dalla ref, che recupera parzialmente la pessima posizione nei tempi di esecuzione. L'implementazione peggiore invece è la opt32, la quale occupa quasi il triplo dello spazio dell'implementazione migliore.
+\noindent Oltre alla classica lowsize, nella dimensione dell'eseguibile le implementazioni con lowreg e small nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite poco dopo dalla bi32 armv7m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione, e dalla ref, che recupera parzialmente la pessima posizione nei tempi di esecuzione. L'implementazione peggiore invece è la opt32, la quale occupa quasi il triplo dello spazio dell'implementazione migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/asconhasha.pdf}
-    \caption{Plain-text di 0 byte con asconhasha.}
+    \caption{Plaintext di 0 byte con asconhasha.}
 \end{figure}
 
 \paragraph{Algoritmi XOF}
 
-In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m lowsize sono risultate le migliori, con la bi32 armv7m che diventa la migliore se la grandezza dei plain-text aumenta, mentre le implementazioni della famiglia opt32 e ref sono risultate le peggiori, anche se quest'ultima è molto più lenta del 24/27\% rispetto alle altre. \\
+In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m lowsize sono risultate le migliori, con la bi32 armv7m che diventa la migliore se la grandezza dei plaintext aumenta, mentre le implementazioni della famiglia opt32 e ref sono risultate le peggiori, anche se quest'ultima è molto più lenta del 24/27\% rispetto alle altre. \\
 
-\noindent Come prima, per la dimensione dell'eseguibile le implementazioni con lowsize, lowreg e small nel nome sono risultate le migliori in tutte le grandezze di plain-text, seguite poco dopo dalla bi32 armv7m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione, e dalla ref, che recupera parzialmente la pessima posizione nei tempi di esecuzione. L'implementazione peggiore invece è la opt32, il triplo più pesante dell'implementazione migliore.
+\noindent Come prima, per la dimensione dell'eseguibile le implementazioni con lowsize, lowreg e small nel nome sono risultate le migliori in tutte le grandezze di plaintext, seguite poco dopo dalla bi32 armv7m, confermando quindi la sua ottima posizione ottenuta nei tempi di esecuzione, e dalla ref, che recupera parzialmente la pessima posizione nei tempi di esecuzione. L'implementazione peggiore invece è la opt32, il triplo più pesante dell'implementazione migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/asconxofa.pdf}
-    \caption{Plain-text di 0 byte con asconxofa.}
+    \caption{Plaintext di 0 byte con asconxofa.}
 \end{figure}
 
 \subsubsection{Crypto auth}
 
 \paragraph{Algoritmi MAC}
 
-In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m si contendono le prime tre posizioni al variare delle grandezze di plain-text, mentre l'implementazione ref è la peggiore. \\
+In termini di tempi di esecuzione, le implementazioni bi32 armv7m, armv7m small e armv7m si contendono le prime tre posizioni al variare delle grandezze di plaintext, mentre l'implementazione ref è la peggiore. \\
 
 \noindent Considerando la dimensione dell'eseguibile, le implementazioni armv7m small, ref e bi32 lowreg sono le migliori, ma solo la prima può vantare anche ottimi tempi di esecuzione. L'implementazione peggiore invece è la opt32, con una dimensione doppia rispetto a quella migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/asconmaca.pdf}
-    \caption{Plain-text di 0 byte con asconmaca.}
+    \caption{Plaintext di 0 byte con asconmaca.}
 \end{figure}
 
 \paragraph{Algoritmi PRF}
 
-In termini di tempi di esecuzione, le implementazioni armv7m small e bi32 armv7m sono risultate le migliori in tutte le grandezze di plain-text, con la prima che è più performante su plain-text di grandezza maggiore, mentre l'implementazione ref è risultata la peggiore. \\
+In termini di tempi di esecuzione, le implementazioni armv7m small e bi32 armv7m sono risultate le migliori in tutte le grandezze di plaintext, con la prima che è più performante su plaintext di grandezza maggiore, mentre l'implementazione ref è risultata la peggiore. \\
 
 \noindent Per la dimensione dell'eseguibile, le implementazioni armv7m small, ref e bi32 lowreg sono le migliori, ma solo la prima può  anche ottimi tempi di esecuzione. L'implementazione peggiore invece è la opt32, con una dimensione quasi tripla rispetto a quella migliore.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{arduino/asconprfa.pdf}
-    \caption{Plain-text di 0 byte con asconprfa.}
+    \caption{Plaintext di 0 byte con asconprfa.}
 \end{figure}
 
 \subsubsection{Recap finale}
@@ -2343,47 +2343,47 @@ In termini di tempi di esecuzione, nessuna implementazione riesce a dominare def
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{raspberry/ascon128a.pdf}
-    \caption{Plain-text di 0 byte con ascon128a.}
+    \caption{Plaintext di 0 byte con ascon128a.}
 \end{figure}
 
 \subsubsection{Crypto hash}
 
 \paragraph{Algoritmi hash}
 
-In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre le restanti grandezze opt64 diventa la migliore e opt64 lowsize la peggiore.
+In termini di tempi di esecuzione, per grandezze di plaintext ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre le restanti grandezze opt64 diventa la migliore e opt64 lowsize la peggiore.
 
 \noindent Considerando invece la dimensione dell'eseguibile, l'implementazione opt64 lowsize è risultata la migliore, seguita dalla ref e dalla opt64, anche se i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{raspberry/asconhasha.pdf}
-    \caption{Plain-text di 0 byte con asconhasha.}
+    \caption{Plaintext di 0 byte con asconhasha.}
 \end{figure}
 
 \paragraph{Algoritmi XOF}
 
-In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze maggiori opt64 diventa la migliore e opt64 lowsize diventa la peggiore.
+In termini di tempi di esecuzione, per grandezze di plaintext ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze maggiori opt64 diventa la migliore e opt64 lowsize diventa la peggiore.
 
 \noindent Per la dimensione dell'eseguibile, l'implementazione opt64 lowsize è risultata la migliore, seguita dalla ref e dalla opt64, anche se, come prima, i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{raspberry/asconxofa.pdf}
-    \caption{Plain-text di 0 byte con asconxofa.}
+    \caption{Plaintext di 0 byte con asconxofa.}
 \end{figure}
 
 \subsubsection{Crypto auth}
 
 \paragraph{Algoritmi MAC}
 
-In termini di tempi di esecuzione, per grandezze di plain-text ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze maggiori opt64 diventa la migliore e ref diventa la peggiore. \\
+In termini di tempi di esecuzione, per grandezze di plaintext ridotte nessuna implementazione riesce a dominare definitivamente le altre, mentre per grandezze maggiori opt64 diventa la migliore e ref diventa la peggiore. \\
 
 \noindent Nello studio della dimensione dell'eseguibile, l'implementazione ref è risultata la migliore, seguita dalla opt64, che si classifica ultima, anche se i due valori differiscono di un numero di byte compreso tra 24 e 48, quindi le possiamo considerare praticamente allo stesso livello.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{raspberry/asconmaca.pdf}
-    \caption{Plain-text di 0 byte con asconmaca.}
+    \caption{Plaintext di 0 byte con asconmaca.}
 \end{figure}
 
 \paragraph{Algoritmi PRF}
@@ -2395,12 +2395,12 @@ In termini di tempi di esecuzione, nessuna implementazione riesce a dominare def
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{raspberry/asconprfa.pdf}
-    \caption{Plain-text di 0 byte con asconprfa.}
+    \caption{Plaintext di 0 byte con asconprfa.}
 \end{figure}
 
 \subsubsection{Recap finale}
 
-A differenze delle board precedenti, il pool di implementazioni disponibili è molto ridotto, formato infatti dalle sole implementazioni opt64, opt64 lowsize e ref. Dalle analisi precedenti, l'implementazione opt64 è la migliore per quanto riguarda i tempi di esecuzione, soprattutto su plain-text di grandezza maggiore. Se l'ottimizzazione va invece verso lo spazio utilizzato, permettendo alcune perdite in termini di tempo di esecuzione, soprattutto sui plain-text di grandezza maggiore l'implementazione opt64 lowsize è la scelta migliore. L'implementazione ref è nel mezzo e non ha senso considerarla, perchè: \begin{itemize}
+A differenze delle board precedenti, il pool di implementazioni disponibili è molto ridotto, formato infatti dalle sole implementazioni opt64, opt64 lowsize e ref. Dalle analisi precedenti, l'implementazione opt64 è la migliore per quanto riguarda i tempi di esecuzione, soprattutto su plaintext di grandezza maggiore. Se l'ottimizzazione va invece verso lo spazio utilizzato, permettendo alcune perdite in termini di tempo di esecuzione, soprattutto sui plaintext di grandezza maggiore l'implementazione opt64 lowsize è la scelta migliore. L'implementazione ref è nel mezzo e non ha senso considerarla, perchè: \begin{itemize}
     \item se l'ottimizzazione va verso i tempi di esecuzione, ref è più lenta della opt64 ma con lo stesso spazio utilizzato;
     \item se l'ottimizzazione va verso lo spazio utilizzato, ref è più pesante della opt64 lowsize ma con dei tempi di esecuzione molto simili.
 \end{itemize}
