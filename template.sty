@@ -26,6 +26,8 @@
 \figurespagefalse
 \tablespagefalse
 
+\usepackage{setspace}
+
 \def\frontespizio{
 	\pagenumbering{gobble}
 	\begin{center}
@@ -41,12 +43,15 @@
 	
 	\vfill
 	\vskip 1.5 cm
-	\begin{center}
-		{\Large\uppercase\expandafter{\myTitle}}
-	\end{center}
+
+    \begin{spacing}{1.5}
+	   \begin{center}
+        {\Huge\uppercase\expandafter{\myTitle}}
+	   \end{center}
+    \end{spacing}
 	
 	\vfill
-	\vskip 2.5 cm
+	\vskip 1.5 cm
 	
 	\begin{tabular}{ll}
 		{\large Relatore:} & \myRefereeA\\
@@ -64,7 +69,7 @@
 	\end{tabular}
 	
 	\vfill
-	\vskip 4.5 cm
+	\vskip 2.5 cm
 	
 	\begin{center}
 		%inserire l'anno accademico
