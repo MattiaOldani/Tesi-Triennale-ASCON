@@ -1,3 +1,26 @@
-\chapter{Conclusioni}
+\chapter{Conclusioni (COMPLETATO)}
 
-1 pagina dove termino il discorso
+\section{Risultati ottenuti}
+
+Osservando i risultati presentati al capitolo precedente, la board RaspberryPi model 3B é risultata la migliore nei tempi di esecuzione, ma questo é un risultato ``banale'': infatti, la potenza del processore della board influisce molto sui risultati ottenuti, avendo una frequenza 25 volte superiore alla board Adafruit e 12.5 volte superiore alla board Arduino. \\
+
+\noindent Tra le due board prive di sistema operativo la migliore é stata la board Arduino, vista la frequenza doppia del processore, ma questo moltiplicatore non si riflette anche sui tempi di esecuzione: infatti, la board Adafruit é 1.5 volte più lenta rispetto alla board Arduino. \\
+
+\noindent I risultati ottenuti mostrano come la famiglia ASCON sia molto veloce e occupi una quantità di spazio ridotta su tutte le board testate, due enormi punti a favore che hanno permesso di vincere la competizione del NIST.
+
+\section{Sviluppi futuri}
+
+I principali sviluppi futuri si muoveranno in quattro direzioni: \begin{enumerate}
+    \item Raccolta dati: la fase di testing di tutti gli algoritmi presentati verrà allargata sui cicli della CPU tramite alcuni file di test forniti da ASCON nel loro repository Github\cite{github};
+    \item Board: la fase di testing riguarderà altre board e microcontrollori. Infatti, il testing non é avvenuto su alcune architetture quali:
+    \begin{itemize}
+        \item ARMv6 e ARM neon per quanto riguarda le architetture ARM;
+        \item ESP32 a 32 bit;
+        \item AVX512 a 320 bit;
+        \item AVR a 8 bit;
+        \item RV32I a 32 bit;
+        \item RV32B a 32 bit.
+    \end{itemize}
+    \item Grandezze di plaintext: la fase di testing verrà estesa a grandezze di plaintext maggiori, come file che codificano immagini o video;
+    \item Testing automatico: la fase di testing verrà resa automatica, realizzando degli script che vadano a testare in sequenza i vari algoritmi usando, ad esempio, l'Arduino IDE dal terminale e non tramite la GUI.
+\end{enumerate}
