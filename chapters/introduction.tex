@@ -2,12 +2,18 @@
 
 \section{Obiettivi}
 
-L'obiettivo del lavoro di tesi é testare la famiglia ASCON, vincitrice della gara per la standardizzazione della crittografia lightweight indetta dal NIST. L'attività di testing riguarda tutti gli algoritmi presenti nella suite ASCON ed é stata eseguita su tre dispositivi IoT fisici, presentati nel capitolo ``Testing e analisi''. Nello stesso capitolo é presente anche l'analisi delle performance di ogni algoritmo. Ogni dispositivo testato ha seguito un workflow preciso: \begin{enumerate}
-    \item individuazione dell'architettura hardware a disposizione;
-    \item scelta delle implementazione degli algoritmi da testare;
-    \item compilazione di questi ultimi;
-    \item raccolta e analisi dei tempi di esecuzione.
+L'obiettivo del lavoro di tesi é testare e analizzare le prestazioni della famiglia ASCON, vincitrice della gara per la standardizzazione della crittografia lightweight indetta dal NIST nel 2018/2019\cite{nist-competition}. Il lavoro svolto ha seguito i seguenti step: \begin{enumerate}
+    \item Individuazione di microcontrollori e board a disposizione da testare. In questo report vengono riportati i risultati di tre dispositivi: Arduino, Adafruit e Raspberry, analizzati nello specifico nel capitolo ``Testing e analisi'';
+    \item Setup della suite di test. I sorgenti dei file di test sono stati forniti da ASCON nel loro repository Github\cite{github}, ma hanno richiesto delle modifiche per poter essere compilati dall'Arduino IDE. La creazione dei folder con i file delle implementazioni e dei file di test é stata automatizzata, visto il sostanzioso numero di implementazioni da testare;
+    \item Compilazione dei sorgenti e testing. La suite di test dei primi due dispositivi IoT testati sono stati compilati con l'Arduino IDE, mentre la suite dell'ultimo dispositivo é stata compilata direttamente nel terminale;
+    \item Raccolta dei risultati. Ogni suite di test ha generato una grande quantità di dati, raccolti in file CSV facilmente interrogabili;
+    \item Analisi dei risultati. Tramite dei notebook Jupyter sono state analizzate le prestazioni di algoritmi e implementazioni, generando dei grafici presentati nella parte finale del capitolo ``Testing e analisi''.
 \end{enumerate}
+Il lavoro ha richiesto la conoscenza dei linguaggi C, Assembly ASM, C++ e Arduino. I primi due sono i linguaggi che ASCON ha scelto per implementare la propria famiglia di algoritmi, mentre i secondi due sono stati usati per permettere la compilazione delle suite di test sui dispositivi compatibili con l'Arduino IDE. \\
+
+\noindent Una panoramica delle implementazioni di ASCON sono presentate nel capitolo ``Lightweight Cryptography e ASCON''. \\
+
+\noindent Gli altri linguaggi utilizzati sono Python, Jupyter Notebook e Bash. Il primo e l'ultimo si sono rivelati fondamentali per la creazione di task automatici, come compilazione e raccolta della grandezza degli eseguibili, mentre i notebook hanno permesso l'analisi dei risultati ottenuti con il testing.
 
 \section{Struttura dell'elaborato}
 
