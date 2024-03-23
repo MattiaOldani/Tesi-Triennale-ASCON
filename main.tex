@@ -52,7 +52,6 @@
 % vediamo se va
 \usepackage{pythonhighlight}
 
-% Sistema note a pié di pagina nelle tabelle
 \usepackage{footnote}
 \makesavenoteenv{tabular}
 \usepackage{float}
@@ -60,6 +59,14 @@
 % Package ipertesto
 \usepackage{url}					% Visualizza e rendere interattii gli URL
 \usepackage{hyperref}				% Rende interattivi i collegamenti interni
+\hypersetup{
+    % https://tex.stackexchange.com/questions/50747/options-for-appearance-of-links-in-hyperref
+    colorlinks=true,
+    % allcolors=red,
+    linkcolor=blue,
+    urlcolor=cyan,
+    citecolor=red,
+}
 
 % Path immagini
 \graphicspath{ {./images/} }
@@ -73,6 +80,9 @@
 % 	chapters/test_analysis.tex
 % 	chapters/conclusions.tex
 %}
+
+% Comandi
+\input{commands.tex}
 
 \begin{document}
 
