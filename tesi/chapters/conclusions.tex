@@ -1,26 +1,27 @@
-\chapter{Conclusioni (COMPLETATO)}
+\chapter{Conclusioni}
 
 \section{Risultati ottenuti}
 
-Osservando i risultati presentati nel capitolo 4, la board RaspberryPi é risultata la migliore. Questo risultato era abbastanza prevedibile dal momento che la potenza del processore della board influisce in maniera consistente sui tempi di esecuzione ottenuti. RaspberryPi, infatti, ha una frequenza di clock 25 volte superiore alla board Adafruit e 12.5 volte superiore a quella di Arduino e questo si ripercuote sui risultati osservati sperimentalmente. \\
+Osservando i risultati presentati nel \rif[Capitolo]{ch:test_analysis}, la board RaspberryPi è risultata la migliore. Questo risultato era abbastanza prevedibile dal momento che la potenza del processore della board influisce in maniera consistente sui tempi di esecuzione ottenuti. RaspberryPi, infatti, ha una frequenza di clock 25 volte superiore alla board Adafruit e 12.5 volte superiore a quella di Arduino e questo si ripercuote sui risultati osservati sperimentalmente. \\
 
-\noindent Tra le due board prive di sistema operativo, la migliore é stata quella di Arduino. In questo caso, anche se il processore installato ha una frequenza di clock doppia rispetto a quello di Adafruit, questo "fattore due" non si riflette appieno sui tempi di esecuzione. Infatti, la board Adafruit é 1.5 volte più lenta rispetto alla board Arduino. \\
+\noindent Tra le due board prive di sistema operativo, la migliore è stata quella di Arduino. In questo caso, anche se il processore installato ha una frequenza di clock doppia rispetto a quello di Adafruit, questo ``fattore due'' non si riflette appieno sui tempi di esecuzione. Infatti, la board Adafruit è 1.5 volte più lenta rispetto alla board Arduino. \\
 
-\noindent I risultati ottenuti mostrano come la famiglia ASCON sia molto veloce e occupi una quantità di spazio ridotta su tutte le board testate. Questi due caratteristiche le hanno consentito di sbaragliare la concorrenza e candidarsi come la miglior famiglia di cifrari presente al processo di standardizzazione del NIST.
+\noindent I risultati ottenuti mostrano come la famiglia ASCON sia molto veloce e occupi una quantità di spazio ridotta su tutte le board testate. Questi due caratteristiche le hanno consentito di vincere sulla concorrenza e candidarsi come la miglior famiglia di cifrari presente al processo di standardizzazione del NIST.
 
 \section{Sviluppi futuri}
 
-I principali sviluppi futuri si muoveranno in quattro direzioni: \begin{enumerate}
-    \item Raccolta dati: la fase di testing di tutti gli algoritmi presentati comprenderà l'analisi dei cicli della CPU tramite alcuni file di test forniti da ASCON nel loro repository Github\cite{github};
-    \item Board: la fase di testing riguarderà altri dispositivi IoT. Infatti, il testing non é avvenuto su alcune architetture quali:
+I principali sviluppi futuri si muoveranno in quattro direzioni:
+\begin{enumerate}[label=\Roman*.]
+    \item \textbf{Raccolta dati}: la fase di testing di tutti gli algoritmi presentati comprenderà l'analisi dei cicli della CPU tramite alcuni file di test forniti da ASCON nel loro repository Github\cite{github};
+    \item \textbf{Board}: la fase di testing riguarderà altri dispositivi IoT. Infatti, il testing non è avvenuto su alcune architetture – tra le quali:
     \begin{itemize}
-        \item ARMv6 e ARM neon per quanto riguarda le architetture ARM;
-        \item ESP32 a 32 bit;
-        \item AVX512 a 320 bit;
-        \item AVR a 8 bit;
-        \item RV32I a 32 bit;
-        \item RV32B a 32 bit.
+        \item \texttt{ARMv6} e \texttt{ARM neon} per quanto riguarda le architetture ARM;
+        \item \texttt{ESP32} a 32 bit;
+        \item \texttt{AVX512} a 320 bit;
+        \item \texttt{AVR} a 8 bit;
+        \item \texttt{RV32I} a 32 bit;
+        \item \texttt{RV32B} a 32 bit.
     \end{itemize}
-    \item Grandezze di plaintext: la fase di testing verrà estesa a grandezze di plaintext maggiori, come file che codificano immagini o video;
-    \item Testing automatico: la fase di testing verrà resa automatica, realizzando degli script che vadano a testare in sequenza i vari algoritmi usando, ad esempio, l'Arduino IDE dal terminale e non tramite la GUI.
+    \item \textbf{Grandezze di plaintext}: la fase di testing verrà estesa a grandezze di plaintext maggiori, come file che codificano immagini o video;
+    \item \textbf{Testing automatico}: la fase di testing verrà resa automatica, realizzando degli script che vadano a testare in sequenza i vari algoritmi usando, ad esempio, l'Arduino IDE dal terminale e non tramite la GUI.
 \end{enumerate}
