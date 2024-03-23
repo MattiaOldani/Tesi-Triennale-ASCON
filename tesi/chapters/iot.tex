@@ -1,52 +1,56 @@
-\chapter{Architettura IoT (COMPLETATO)}
+\chapter{Architettura IoT}
 
 \section{Definizione}
 
-L'IoT, o \textit{Internet delle cose}, descrive una rete di dispositivi fisici integrati tra loro tramite sensori, software e la rete, consentendo loro di raccogliere e condividere dati. I dispositivi IoT sono conosciuti anche come \textit{``smart objects''}, e possono variare dai semplici dispositivi \textit{smart home}, come i termostati intelligenti o gli \textit{smartwatch}, fino a macchinari industriali complessi e ai sistemi di trasporto. Una delle ultime novità in ambito IoT rappresenta l'idea delle ``smart city'', basate interamente sulle tecnologie IoT\cite{iot-intro}. \\
+L'\textbf{IoT}, dall'inglese \textit{Internet of Things} (ossia \textit{Internet delle cose}), descrive una rete di dispositivi fisici integrati tra loro tramite sensori, software e rete, consentendogli di raccogliere e condividere dati. I dispositivi IoT sono conosciuti anche come \textit{``smart objects''}, e possono variare dai semplici dispositivi \textit{smart home}, come i termostati intelligenti o gli \textit{smartwatch}, fino a macchinari industriali e ai sistemi di trasporto. Una delle ultime novità in ambito IoT rappresenta l'idea delle ``smart cities'', basate interamente sulle tecnologie IoT\cite{iot-intro}. \\
 
-\noindent I dispositivi IoT sono molto particolari perché hanno dimensioni molto ridotte, quindi hanno scarsa memoria e processori con potenza computazionale limitata. Queste limitazioni lato hardware devono essere compensate con delle ottimizzazioni lato software tramite algoritmi lightweight, che vengono introdotti nel capitolo successivo. \\
+\noindent I dispositivi IoT sono degni di interesse perché presentano dimensioni molto ridotte, pertanto hanno scarsa memoria e processori con potenza computazionale limitata. Queste limitazioni lato hardware devono essere compensate con delle ottimizzazioni lato software mediante algoritmi lightweight, che vengono introdotti nel capitolo successivo (vedi \rif[Capitolo]{ch:cryptography}). \\
 
-\noindent Nonostante ciò, questa architettura é in rapida crescita ed é sempre più presente nella vita quotidiana delle persone.
+\noindent A fronte di tutte queste problematiche, questa architettura è in rapida crescita ed è sempre più presente nella vita quotidiana delle persone.
 
 \section{Contesto di utilizzo}
 
-\noindent Lo schema IoT consente ai dispositivi di comunicare tra loro e con altri dispositivi abilitati all'uso di internet. Questo permette di creare una rete di dispositivi interconnessi che possono scambiare dati e svolgere varie attività autonomamente, come ad esempio: \begin{itemize}
-    \item monitorare le condizioni ambientali;
-    \item gestire i modelli di traffico con automobili intelligenti, come la guida automatica presente nei prodotti Tesla;
-    \item controllare macchine e processi nelle fabbriche;
-    \item tracciare delle spedizioni nei magazzini.
+\noindent Lo schema IoT consente ai dispositivi abilitati all'uso di internet di comunicare tra loro, scambiare dati e svolgere varie attività in maniera autonoma – ad esempio:
+\begin{itemize}
+    \item Monitorare le condizioni ambientali;
+    \item Gestire i modelli di traffico con automobili intelligenti, come la guida automatica presente nei prodotti Tesla\copyright;
+    \item Controllare macchine e processi nelle fabbriche;
+    \item Tracciare delle spedizioni nei magazzini.
 \end{itemize}
-I settori che possono trarre più vantaggio dall'IoT sono i seguenti\cite{iot-use}: \begin{enumerate}
-    \item manifatturiero: si monitora la linea di produzione per verificare quando viene compromessa e si permette una rapida gestione degli asset;
-    \item automobilistico: situazione simile alla precedente, ovvero la verifica della compromissione degli asset, che viene poi segnalata all'utilizzatore durante l'uso del veicolo; 
-    \item trasporto e logistica: rilevazione degli inventari per il monitoraggio delle spedizioni o della temperatura, soprattutto su prodotti alimentari e farmaceutici;
-    \item sanità: rilevazione dell'esatta posizione delle risorse di assistenza, oltre al monitoraggio real time delle condizioni dei pazienti.
-\end{enumerate}
-\noindent Le due liste appena presentate sono molto riduttive: il mondo IoT é vario e capace di svolgere quasi tutte le operazioni possibili, e i settori che ne giovano sono molti di più rispetto a quelli presentati.
+I settori che possono trarre più vantaggio dall'IoT sono i seguenti\cite{iot-use}:
+\begin{itemize}
+    \item \textbf{Manifatturiero}: si monitora la linea di produzione per verificare quando viene compromessa e si permette una rapida gestione degli asset;
+    \item \textbf{Automobilistico}: situazione simile alla precedente, ovvero la verifica della compromissione degli asset, che viene poi segnalata all'utilizzatore durante l'uso del veicolo; 
+    \item \textbf{Trasporto e logistica}: rilevazione degli inventari per il monitoraggio delle spedizioni o della temperatura, soprattutto nei confronti di prodotti alimentari e farmaceutici;
+    \item \textbf{Sanità}: rilevazione dell'esatta posizione delle risorse di assistenza, oltre al monitoraggio real time delle condizioni dei pazienti.
+\end{itemize}
+\noindent Le due liste appena presentate sono molto riduttive: il mondo IoT è vario e capace di svolgere quasi tutte le operazioni possibili, e i settori che ne giovano sono molti di più rispetto a quelli presentati.
 
-\section{IoT vs sistemi embedded}
+\section{IoT Vs. sistemi embedded}
 
-Un primo confronto possibile é tra l'IoT e i sistemi embedded. Spesso i due termini vengono confusi e utilizzati come se fossero la stessa cosa, ma questo non é vero: infatti, i sistemi embedded, se integrati all’interno di oggetti o sistemi informatici più complessi, costituiscono una possibile soluzione IoT, ma non necessariamente lo sono. Quest'ultimo é il caso dei sistemi progettati per ottenere uno scambio “chiuso”, cioè di dati e informazioni tra dispositivi senza interazione con l’ambiente. Non basta quindi, per un sistema embedded, essere dotato di micro-controllori con sensori e altri apparecchi fisici per essere considerato IoT\cite{iot-embedded}.
+Un primo confronto possibile è tra l'IoT e i \textbf{sistemi embedded}. Spesso i due termini vengono confusi e utilizzati come se fossero la stessa cosa, ma questo non è vero: i sistemi embedded, se integrati all’interno di oggetti o sistemi informatici più complessi, costituiscono una possibile soluzione IoT, ma \textit{non necessariamente} lo sono. \\
+
+\noindent Quest'ultimo è il caso dei sistemi progettati per ottenere uno scambio ``chiuso'', cioè di dati e informazioni tra dispositivi senza interazione con l’ambiente. Non è sufficiente, dunque, per un sistema embedded, essere dotato di microcontrollori con sensori e altri apparecchi fisici per essere considerato IoT\cite{iot-embedded}.
 
 \section{IoT VS macchine ad alte prestazioni}
 
-Un secondo confronto é invece quello tra l'IoT e le macchine ad alte prestazioni, dette anche HCP (\textit{High-Performance Computing})\cite{hcp}, riassunto nella tabella successiva.
+Un secondo confronto è invece quello tra l'IoT e le macchine ad alte prestazioni, dette anche HCP (\textit{High-Performance Computing})\cite{hcp}, riassunto nella tabella successiva.
 
 \begin{table}[H]
     \centering
 	\begin{tabular}{|m{0.22\textwidth}<{\centering}||m{0.39\textwidth}<{\centering}|m{0.39\textwidth}<{\centering}|}
 		\hline
-		Aspetto & IoT & HCP \\
+		\textbf{Aspetto} & \textbf{IoT} & \textbf{HCP} \\
         \hline \hline
         Definizione. & Rete di dispositivi fisici connessi tramite la rete internet, la quale permette lo scambio dei dati raccolti tramite sensori o simili. & Tecnologia che utilizza cluster di processori per elaborare enormi quantità di dati, detti anche \textit{big data}. \\ 
         \hline
-        Dimensioni. & Molto ridotte: l'ordine di grandezza é quello dei sensori, ovvero i principali dispositivi IoT. & Molto grandi: sono utilizzati cluster di processori anche da 100.000 nodi. \\
+        Dimensioni. & Molto ridotte: l'ordine di grandezza è quello dei sensori, ovvero i principali dispositivi IoT. & Molto grandi: sono utilizzati cluster di processori anche da 100.000 nodi. \\
         \hline
-        Potenza computazionale. & Limitata viste le ridotte dimensioni. & Enorme vista la grande quantità di processori che possono lavorare in parallelo. La velocità é quasi un milione di volte superiore rispetto ai classici sistemi desktop. \\
+        Potenza computazionale. & Limitata viste le ridotte dimensioni. & Enorme vista la grande quantità di processori che possono lavorare in parallelo. La velocità è quasi un milione di volte superiore rispetto ai classici sistemi desktop. \\
         \hline
         Flusso di esecuzione. & Seriale. & Parallelo di massa. \\
         \hline
-        Ambito di utilizzo. & Raccogliere e inviare dati tramite la rete per poterli analizzare. & Machine Learning, Artificial Intelligence, rendering grafico, sanità, genomica, finanza e trading, governo e difesa. \\
+        Ambito di utilizzo. & Raccogliere e inviare dati tramite la rete per poterli analizzare. & Machine learning, artificial intelligence, rendering grafico, sanità, genomica, finanza e trading, governo e difesa. \\
 		\hline
     \end{tabular}
     \caption{Differenze tra IoT e HCP.}
@@ -54,27 +58,29 @@ Un secondo confronto é invece quello tra l'IoT e le macchine ad alte prestazion
 
 \section{Perché scegliere il mondo IoT}
 
-Il mondo IoT porta una serie di benefici alla vita delle persone: le soluzioni sviluppate rendono la vita più facile e conveniente in vari ambiti, come quello sanitario e dell'istruzione. \\
+Il mondo IoT è in grado di migliorare la vita di tutti i giorni, semplificando varie operazioni in diversi ambiti, come quelli sanitario e dell'istruzione. \\
 
-\noindent Alcuni benefici di questa tecnologia sono\cite{iot-vantaggi}: \begin{enumerate}
-    \item raccolta efficiente dei dati: utile in settori come sanità e finanze per tracciare le decisioni sugli acquisti e le tendenze di vendita. I dati sono poi usati per migliorare la gestione degli inventari e rilevare i comportamenti del cliente;
-    \item controllo e automazione: si permette uno stile di vita controllabile ``con un tocco'', ad esempio tramite dispositivi intelligenti come lampadine, macchine per il caffé o, in generale, dispositivi di uso quotidiano;
-    \item accesso in tempo reale alle informazioni: si offre accesso immediato alle informazioni, risultando preziosi in settori come la sanità, le imprese e le applicazioni quotidiane. Soprattutto in ambito medico é utile: ad esempio é possibile monitorare la salute di un paziente in tempo reale, risultando cruciale nel fornire assistenza medica tempestiva;
-    \item miglioramento dell'efficienza: i sistemi IoT operano autonomamente, quindi con meno interferenza umana si ha un aumento dell'efficienza e una minore dipendenza dal lavoro umano;
-    \item tracciamento degli asset: permette il tracciamento dei prodotti all'interno di un'impresa o di un sistema di gestione della logistica. Il tracciamento manuale degli asset è laborioso e richiede tempo, ma può essere semplificato attraverso l'applicazione di tecnologie IoT come codici a barre e tag RFID;
-    \item aumento della produttività: in relazione al secondo punto, grazie ai dispositivi smart e intelligenti gli utenti possono semplificare varie attività domestiche usando comandi vocali o applicazioni;
-    \item sicurezza: si possono monitorare a distanza i propri asset di valore, come veicoli o oggetti di collezione, oppure tracciare la posizione dei figli comodamente dal telefono;
-    \item miglioramento del coinvolgimento del cliente: sfruttando i dati dei clienti é possibile la personalizzazione delle esperienze, migliorando la convenienza e consentendo interazioni in tempo reale;
-    \item utilizzo efficiente delle risorse: il tracciamento dello stato delle risorse, come attrezzature e macchinari, consente l'identificazione di inefficienze. La manutenzione predittiva nel settore industriale può prevedere guasti delle macchine, riducendo i tempi di inattività e ottimizzando l'allocazione delle risorse per la manutenzione.
+\noindent Alcuni benefici di questa tecnologia sono\cite{iot-vantaggi}:
+\begin{enumerate}
+    \item \textbf{Raccolta efficiente dei dati}: in settori come sanità e finanza è utile per tenere traccia delle decisioni sugli acquisti e le tendenze di vendita. I dati sono poi usati per migliorare la gestione degli inventari e rilevare i comportamenti del cliente;
+    \item \textbf{Controllo e automazione}: si permette uno stile di vita controllabile ``con un tocco'', ad esempio tramite dispositivi intelligenti come lampadine, macchine per il caffè o, in generale, dispositivi di uso quotidiano;
+    \item \textbf{Accesso in tempo reale alle informazioni}: si offre accesso immediato alle informazioni, risultando preziosi in settori come la sanità, le imprese e le applicazioni quotidiane. Soprattutto in ambito medico è utile: ad esempio è possibile monitorare la salute di un paziente in tempo reale, elemento che risulta cruciale nel fornire assistenza medica tempestiva;
+    \item \textbf{Miglioramento dell'efficienza}: i sistemi IoT operano autonomamente, quindi con meno interferenza umana si ha un aumento dell'efficienza e una minore dipendenza dal lavoro umano;
+    \item \textbf{Tracciamento degli asset}: permette il tracciamento dei prodotti all'interno di un'impresa o di un sistema di gestione della logistica. Il tracciamento manuale degli asset è laborioso e richiede tempo, ma può essere semplificato attraverso l'applicazione di tecnologie IoT come codici a barre e tag RFID;
+    \item \textbf{Aumento della produttività}: in relazione al secondo punto, grazie ai dispositivi smart e intelligenti gli utenti possono semplificare varie attività domestiche usando comandi vocali o applicazioni;
+    \item \textbf{Sicurezza}: si possono monitorare a distanza i propri asset di valore, come veicoli o oggetti di collezione, oppure tracciare la posizione dei figli comodamente dal telefono;
+    \item \textbf{Miglioramento del coinvolgimento del cliente}: sfruttando i dati dei clienti è possibile la personalizzazione delle esperienze, migliorando la convenienza e consentendo interazioni in tempo reale;
+    \item \textbf{Utilizzo efficiente delle risorse}: il tracciamento dello stato delle risorse, come attrezzature e macchinari, consente l'identificazione di inefficienze. La manutenzione predittiva nel settore industriale può prevedere guasti delle macchine, riducendo i tempi di inattività e ottimizzando l'allocazione delle risorse per la manutenzione.
 \end{enumerate}
 
 \section{Sfide del mondo IoT}
 
-Il mondo IoT deve affrontare una serie di sfide. Alcune di queste sono\cite{iot-challenge-1}\cite{iot-challenge-2}: \begin{enumerate}
-    \item sicurezza e la privacy: con l'aumentare della diffusione dei dispositivi IoT la sicurezza e la privacy diventano sempre più importanti. Molti dispositivi IoT sono vulnerabili ad attacchi su più livelli dello stack di rete, quindi bisogna ricorrere a tecniche di anonimato e crittografia per proteggere le enormi quantità di dati, anche personali, che sono raccolte;
-    \item interoperabilità: i dispositivi IoT di diversi produttori spesso utilizzano standard e protocolli diversi, rendendo difficile la comunicazione. Una possibile soluzione é l'utilizzo di interfacce standard, ma la creazione di specifici standard e la successiva imposizione é un compito arduo e praticamente impraticabile;
-    \item sovraccarico dei dati: i dispositivi IoT generano enormi quantità di dati, che possono sovraccaricare le aziende non preparate a gestirli;
-    \item costi e complessità: Implementare un sistema IoT può essere costoso e complesso, richiedendo investimenti significativi in hardware, software e infrastruttura. La manutenzione invece richiede competenze e esperienza specializzate;
-    \item sfide normative e legali: Con l'aumentare della diffusione dei dispositivi IoT, stanno emergendo sfide normative e legali. Le aziende devono conformarsi a varie normative sulla protezione dei dati, sulla privacy e sulla sicurezza informatica, che possono variare da paese a paese;
-    \item scalabilità: all'aumentare del numero di dispositivi bisogna garantire una connettività fluida, una gestione efficace dei dati e prestazioni complessive ottime, ma questa é complicato se non si utilizzano tecnologie come componenti modulari, bilanciatori di carico e sistemi distribuiti.
+Il mondo IoT deve affrontare una serie di sfide. Alcune di queste sono\cite{iot-challenge-1}\cite{iot-challenge-2}:
+\begin{enumerate}
+    \item \textbf{Sicurezza e la privacy}: con l'aumentare della diffusione dei dispositivi IoT la sicurezza e la privacy diventano sempre più importanti. Molti di essi sono vulnerabili ad attacchi su più livelli dello stack di rete, quindi bisogna ricorrere a tecniche di anonimato e crittografia per proteggere le enormi quantità di dati raccolte;
+    \item \textbf{Interoperabilità}: i dispositivi IoT di diversi produttori spesso utilizzano standard e protocolli diversi, rendendo difficile la comunicazione. Una possibile soluzione è l'utilizzo di interfacce standard, ma la creazione di questi ultimi, la loro implementazione e la successiva adozione da parte dell'intero panorama ne rende impossibile l'attuazione;
+    \item \textbf{Sovraccarico dei dati}: i dispositivi IoT generano enormi quantità di dati, che possono sovraccaricare le aziende non preparate a gestirli;
+    \item \textbf{Costi e complessità}: implementare un sistema IoT può essere costoso e complesso, richiedendo investimenti significativi in hardware, software e infrastruttura. La manutenzione invece richiede competenze ed esperienza specializzate;
+    \item \textbf{Sfide normative e legali}: con l'aumentare della diffusione dei dispositivi IoT stanno emergendo sfide normative e legali. Le aziende devono conformarsi a varie normative sulla protezione dei dati, sulla privacy e sulla sicurezza informatica, che possono variare da Paese a Paese;
+    \item \textbf{Scalabilità}: all'aumentare del numero di dispositivi bisogna garantire una connettività fluida, una gestione efficace dei dati e prestazioni complessive ottime, ma questo è complicato se non si utilizzano tecnologie come componenti modulari, bilanciatori di carico e sistemi distribuiti.
 \end{enumerate} 
