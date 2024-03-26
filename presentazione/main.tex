@@ -1,0 +1,59 @@
+% **************************************************************
+% Hi! Edit this file for your presentation!
+% **************************************************************
+
+% ==================///==================///==================///
+% ==================/// LATEX'S STUFF
+% ==================///==================///==================///
+
+\documentclass{beamer}
+\usepackage{amsfonts,amsmath,oldgerm}
+\usetheme{_statale}
+\usefonttheme[onlymath]{serif}
+
+\usepackage{chronosys}
+
+\newcommand{\testcolor}[1]{\colorbox{#1}{\textcolor{#1}{test}}~\texttt{#1}}
+\newcommand{\hrefcol}[2]{\textcolor{cyan}{\href{#1}{#2}}}
+\titlebackground*{assets/background}
+
+% ==================///==================///==================///
+% ==================/// SPLASH PAGE
+% ==================///==================///==================///
+
+\title{ASCON: Analisi prestazionale del nuovo standard internazionale per la crittografia lightweight}
+\course{Laurea Triennale in Informatica}
+\author{Mattia Oldani}
+\IDnumber{966668}
+
+% ==================///==================///==================///
+% ==================/// START PRESENTATION
+% ==================///==================///==================///
+
+\begin{document}
+
+\maketitle
+
+\footlinecolor{maincolor}
+
+% ==================///==================///==================///
+% ==================/// BODY'S PRESENTATION
+% ==================///==================///==================///
+
+\input{sections/introduction}
+
+\input{sections/testing}
+
+\input{sections/analysis}
+
+\input{chapters/special_slides}
+
+\input{sections/conclusions}
+
+% ==================///==================///==================///
+% ==================/// END PRESENTATION
+% ==================///==================///==================///
+
+\backmatter[notitle]
+
+\end{document}
