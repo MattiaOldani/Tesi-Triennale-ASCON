@@ -1,6 +1,6 @@
 \chapter{Testing e analisi}\label{ch:test_analysis}
 
-Come detto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni auth. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plaintext e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono prive di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione ``Raspberry Pi OS''. \
+Come scritto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni auth. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plaintext e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono prive di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione ``Raspberry Pi OS''.
 
 \noindent In questo capitolo verranno usati i termini ``algoritmo'' per indicare un algoritmo di una data famiglia e ``implementazione'' per indicare un'implementazione di un dato algoritmo di una data famiglia. Viene fatto questo per evitare di ripetere ogni volta ``una data implementazione di un dato algoritmo di una data famiglia''.
 
@@ -150,13 +150,13 @@ if __name__ == "__main__":
 
 \section{Dispositivi utilizzati}
 
-L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{Arduino Due}, \textbf{Adafruit ItsyBitsy M0 Express} e \textbf{RaspberryPi model 3B}.
+L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{Arduino Due}, \textbf{Adafruit ItsyBitsy M0 Express} e \textbf{RaspberryPi model 3B}. \\
 
 \noindent Nei capitoli successivi saranno presenti due tipi di tabelle:
 \begin{enumerate}[label=\Roman*.]
-    \item \textbf{Tempi di esecuzione}: contengono, appunto, i tempi di esecuzione, raccolti per implementazione e algoritmo; queste tabelle sono organizzate nel seguente modo:
+    \item \textbf{Tempi di esecuzione} --- Contengono, appunto, i tempi di esecuzione, raccolti per implementazione e algoritmo; queste tabelle sono organizzate nel seguente modo:
     \begin{itemize}
-        \item Header: contiene celle nel formato ``\textit{N-V}'', dove:
+        \item Header, che contiene celle nel formato ``\textit{N-V}'', dove:
         \begin{itemize}
             \item $N$: grandezza in byte del plaintext testato;
             \item $V$: tipo di valore indicato nelle celle sottostanti, e può essere:
@@ -177,8 +177,8 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{
         \end{itemize}
         \item Righe, che contengono:
             \begin{itemize}
-                \item il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
-                \item il nome di una implementazione dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
+                \item Il nome dell'algoritmo da testare e una serie di colonne vuote, oppure
+                \item Il nome di una implementazione dell'algoritmo letto precedentemente e una serie di colonne che rappresentano i tempi di esecuzione raccolti, misurati in microsecondi.
             \end{itemize}
             \begin{table}[H]
                 \centering
@@ -194,9 +194,9 @@ L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{
                 \caption{Righe tabella con algoritmo \texttt{ascon128av12} e implementazioni \texttt{armv6m} e \texttt{ref}.}
             \end{table}
     \end{itemize}
-    \item \textbf{Spazio utilizzato}: contengono alcune informazioni sulle proprietà dei file eseguibili compilati. Per le due board prive di sistema operativo, queste informazioni sono state ricavate dal terminale dell'Arduino IDE, e sono le seguenti:
+    \item \textbf{Spazio utilizzato} --- Contengono alcune informazioni sulle proprietà dei file eseguibili compilati. Per le due board prive di sistema operativo queste informazioni sono state ricavate dal terminale dell'Arduino IDE. Esse sono:
     \begin{itemize}
-        \item Sketch: dimensione del file compilato in byte. È presente anche una percentuale, che indica quanto occupa lo sketch nella memoria della board;
+        \item Sketch: dimensione del file compilato in byte. È presente anche una percentuale, che indica quanto lo skecth occupa nella memoria della board;
         \item Eseguibile: dimensione del file compilato, al quale vengono aggiunti alcuni header per poter essere eseguito sulla board, sempre misurato in byte;
         \item Pagine: numero di pagine;
         \item Loading time: secondi impiegati per trasferire il file eseguibile dal dispositivo host alla board.
@@ -2043,10 +2043,10 @@ Per la famiglia crypto auth sono stati testati tutti gli algoritmi proposti nell
 
 \section{Analisi dei risultati}
 
-In ultima istanza, i risultati ottenuti sono stati analizzati con dei notebook Jupyter per ricercare le implementazioni migliori e peggiori per ogni algoritmo presente nella suite ASCON. L'algoritmo \texttt{ascon80pq}, facente parte della famiglia AEAD, non è stato preso in esame poiché non presente nella gara del NIST, essendo un algoritmo \textit{post quantum}. \\
-I grafici seguenti contengono sull'asse delle $x$ i nomi delle implementazioni testate e sull'asse delle $y$ i corrispondenti tempi di esecuzione in tre ``barre'', che rappresentano, in ordine, la rilevazione minima, media e massima. \\
+In ultima istanza, i risultati ottenuti sono stati analizzati con dei notebook Jupyter per ricercare le implementazioni migliori e peggiori per ogni algoritmo presente nella suite ASCON. L'algoritmo \texttt{ascon80pq}, facente parte della famiglia AEAD, non è stato preso in esame poiché non presente nella gara del NIST, essendo un algoritmo \textit{post-quantum}. \\
+I grafici seguenti contengono sull'asse delle $x$ i nomi delle implementazioni testate e sull'asse delle $y$ i corrispondenti tempi di esecuzione in tre ``barre'', che rappresentano, rispettivamente, le rilevazioni minima, media e massima. \\
 
-\noindent In questo capitolo verranno usati i termini ``algoritmi classici'' per indicare gli algoritmi ``base'' che sono stati presentati da ascon e ``algoritmi bi32'' per indicare gli algoritmi classici compilati con delle ottimizzazioni per le architetture a 32 bit.
+\noindent In questo capitolo verranno usati i termini ``algoritmi classici'' per indicare gli algoritmi ``base'' che sono stati presentati da ASCON e ``algoritmi bi32'' per indicare gli algoritmi classici compilati con delle ottimizzazioni per le architetture a 32 bit.
 
 \subsection{Adafruit ItsyBitsy M0 Express}
 
@@ -2060,7 +2060,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{bi32 armv6m} è ris
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/ascon128abi32.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/ascon128abi32.pdf}
     \caption{Plaintext di 0 byte con \texttt{ascon128abi32}.}
 \end{figure}
 
@@ -2072,7 +2072,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv6m} si classifi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/ascon128a.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/ascon128a.pdf}
     \caption{Plaintext di 0 byte con \texttt{ascon128a}.}
 \end{figure}
 
@@ -2086,7 +2086,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{bi32 armv6m} è ris
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/asconhashabi32.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/asconhashabi32.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconhashabi32}.}
 \end{figure}
 
@@ -2098,7 +2098,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv6m} è risultat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/asconhasha.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/asconhasha.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconhasha}.}
 \end{figure}
 
@@ -2110,7 +2110,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv6m} è risultat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/asconxofa.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/asconxofa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconxofa}.}
 \end{figure}
 
@@ -2124,7 +2124,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv6m} è risultat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/asconmaca.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/asconmaca.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconmaca}.}
 \end{figure}
 
@@ -2136,7 +2136,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv6m} è risultat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{adafruit/asconprfa.pdf}
+    \includegraphics[width=0.8\textwidth]{adafruit/asconprfa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconprfa}.}
 \end{figure}
 
@@ -2156,7 +2156,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{bi32 armv7m} è ris
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/ascon128abi32.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/ascon128abi32.pdf}
     \caption{Plaintext di 0 byte con \texttt{ascon128abi32}.}
 \end{figure}
 
@@ -2168,7 +2168,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{armv7m small} è ri
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/ascon128a.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/ascon128a.pdf}
     \caption{Plaintext di 0 byte con \texttt{ascon128a}.}
 \end{figure}
 
@@ -2182,7 +2182,7 @@ In termini di tempi di esecuzione, l'implementazione \texttt{bi32 armv7m} è ris
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/asconhashabi32.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/asconhashabi32.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconhashabi32}.}
 \end{figure}
 
@@ -2194,7 +2194,7 @@ In termini di tempi di esecuzione, le implementazioni \texttt{bi32 armv7m}, \tex
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/asconhasha.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/asconhasha.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconhasha}.}
 \end{figure}
 
@@ -2206,7 +2206,7 @@ In termini di tempi di esecuzione, le implementazioni \texttt{bi32 armv7m}, \tex
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/asconxofa.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/asconxofa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconxofa}.}
 \end{figure}
 
@@ -2220,7 +2220,7 @@ In termini di tempi di esecuzione, le implementazioni \texttt{bi32 armv7m}, \tex
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/asconmaca.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/asconmaca.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconmaca}.}
 \end{figure}
 
@@ -2232,13 +2232,13 @@ In termini di tempi di esecuzione, le implementazioni \texttt{armv7m small} e \t
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{arduino/asconprfa.pdf}
+    \includegraphics[width=0.8\textwidth]{arduino/asconprfa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconprfa}.}
 \end{figure}
 
 \subsubsection{Recap finale}
 
-Dalle analisi precedenti, possiamo affermare che le implementazioni \texttt{bi32 armv7m} e \texttt{armv7m small} sono risultate le migliori in ogni algoritmo considerato, mentre l'implementazione \texttt{ref} si è trovata spesso tra le peggiori implementazioni.
+Dalle analisi precedenti, possiamo affermare che le implementazioni \texttt{bi32 armv7m} e \texttt{armv7m small} sono risultate le migliori in ogni algoritmo considerato, mentre l'implementazione \texttt{ref} si è spesso trovata tra le peggiori implementazioni.
 
 \subsection{RaspberryPi model 3B}
 
@@ -2252,7 +2252,7 @@ In termini di tempi di esecuzione, nessuna implementazione riesce a dominare def
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{raspberry/ascon128a.pdf}
+    \includegraphics[width=0.8\textwidth]{raspberry/ascon128a.pdf}
     \caption{Plaintext di 0 byte con \texttt{ascon128a}.}
 \end{figure}
 
@@ -2260,25 +2260,25 @@ In termini di tempi di esecuzione, nessuna implementazione riesce a dominare def
 
 \paragraph{Algoritmi hash}
 
-Nei tempi di esecuzione, per grandezze di plaintext ridotte nessuna implementazione domina le altre, mentre le restanti grandezze \texttt{opt64} diventa la migliore e \texttt{opt64 lowsize} la peggiore.
+Nei tempi di esecuzione, per grandezze di plaintext ridotte nessuna implementazione domina le altre, mentre le restanti grandezze \texttt{opt64} diventa la migliore e \texttt{opt64 lowsize} la peggiore. \\
 
 \noindent Considerando invece la dimensione dell'eseguibile, l'implementazione \texttt{opt64 lowsize} è risultata la migliore, seguita dalla \texttt{ref} e dalla \texttt{opt64}, anche se i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{raspberry/asconhasha.pdf}
+    \includegraphics[width=0.8\textwidth]{raspberry/asconhasha.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconhasha}.}
 \end{figure}
 
 \paragraph{Algoritmi XOF}
 
-Come per gli algoritmi hash, nei tempi di esecuzione per grandezze di plaintext ridotte nessuna implementazione riesce a dominare le altre, mentre per grandezze maggiori \texttt{opt64} diventa la migliore e \texttt{opt64 lowsize} diventa la peggiore.
+Come per gli algoritmi hash, nei tempi di esecuzione per grandezze di plaintext ridotte nessuna implementazione riesce a dominare le altre, mentre per grandezze maggiori \texttt{opt64} diventa la migliore e \texttt{opt64 lowsize} diventa la peggiore. \\
 
 \noindent Per la dimensione dell'eseguibile, l'implementazione \texttt{opt64 lowsize} è risultata la migliore, seguita dalla \texttt{ref} e dalla \texttt{opt64}, anche se, come prima, i due valori differiscono di un numero di byte compreso tra 40 e 88.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{raspberry/asconxofa.pdf}
+    \includegraphics[width=0.8\textwidth]{raspberry/asconxofa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconxofa}.}
 \end{figure}
 
@@ -2292,7 +2292,7 @@ Per grandezze di plaintext ridotte i tempi di esecuzione di ogni implementazione
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{raspberry/asconmaca.pdf}
+    \includegraphics[width=0.8\textwidth]{raspberry/asconmaca.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconmaca}.}
 \end{figure}
 
@@ -2304,13 +2304,15 @@ In ogni grandezza di plaintext nessuna implementazione riesce a dominare le altr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{raspberry/asconprfa.pdf}
+    \includegraphics[width=0.8\textwidth]{raspberry/asconprfa.pdf}
     \caption{Plaintext di 0 byte con \texttt{asconprfa}.}
 \end{figure}
 
 \subsubsection{Recap finale}
 
-A differenza delle board precedenti, il pool di implementazioni disponibili è molto ridotto, formato infatti dalle sole implementazioni \texttt{opt64}, \texttt{opt64 lowsize} e \texttt{ref}. Dalle analisi precedenti, l'implementazione \texttt{opt64} è la migliore per quanto riguarda i tempi di esecuzione, soprattutto su plaintext di grandezza maggiore. Se l'ottimizzazione va invece verso lo spazio utilizzato, permettendo alcune perdite in termini di tempo di esecuzione, soprattutto sui plaintext di grandezza maggiore l'implementazione \texttt{opt64 lowsize} è la scelta migliore. L'implementazione \texttt{ref} è ``nel mezzo'' e non ha senso considerarla, perché: \begin{itemize}
-    \item se l'ottimizzazione va verso i tempi di esecuzione, \texttt{ref} è più lenta della \texttt{opt64} ma con lo stesso spazio utilizzato;
-    \item se l'ottimizzazione va verso lo spazio utilizzato, \texttt{ref} è più pesante della \texttt{opt64 lowsize} ma con dei tempi di esecuzione molto simili.
+A differenza delle board precedenti, il pool di implementazioni disponibili è molto ridotto, formato infatti dalle sole implementazioni \texttt{opt64}, \texttt{opt64 lowsize} e \texttt{ref}. \\
+
+\noindent Dalle analisi precedenti, l'implementazione \texttt{opt64} è la migliore per quanto riguarda i tempi di esecuzione, soprattutto su plaintext di grandezza maggiore. Se l'ottimizzazione va invece verso lo spazio utilizzato, permettendo alcune perdite in termini di tempo di esecuzione, soprattutto sui plaintext di grandezza maggiore l'implementazione \texttt{opt64 lowsize} è la scelta migliore. L'implementazione \texttt{ref} è ``nel mezzo'' e non ha senso considerarla, perché: \begin{itemize}
+    \item Se l'ottimizzazione va verso i tempi di esecuzione, \texttt{ref} è più lenta della \texttt{opt64} ma con lo stesso spazio utilizzato;
+    \item Se l'ottimizzazione va verso lo spazio utilizzato, \texttt{ref} è più pesante della \texttt{opt64 lowsize} ma con dei tempi di esecuzione molto simili.
 \end{itemize}
