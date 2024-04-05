@@ -49,37 +49,26 @@
 \floatname{algorithm}{Algoritmo}
 \algrenewcommand\algorithmicrequire{\textbf{Input:}}
 
-% vediamo se va
 \usepackage{pythonhighlight}
 
 \usepackage{footnote}
 \makesavenoteenv{tabular}
 \usepackage{float}
 
+\usepackage{soul}
+
 % Package ipertesto
 \usepackage{url}					% Visualizza e rendere interattii gli URL
 \usepackage{hyperref}				% Rende interattivi i collegamenti interni
 \hypersetup{
-    % https://tex.stackexchange.com/questions/50747/options-for-appearance-of-links-in-hyperref
     colorlinks=true,
-    % allcolors=red,
     linkcolor=blue,
-    urlcolor=cyan,
+    urlcolor=blue,
     citecolor=red,
 }
 
 % Path immagini
 \graphicspath{ {./images/} }
-
-% Compilazione selettiva
-%\includeonly{
-% 	chapters/acknowledgements.tex
-% 	chapters/introduction.tex
-% 	chapters/iot.tex
-%   chapters/crypto.tex
-% 	chapters/test_analysis.tex
-% 	chapters/conclusions.tex
-%}
 
 % Comandi
 \input{commands.tex}
@@ -92,9 +81,6 @@
 
 % Creazione automatica del frontespizio
 \frontespizio \beforepreface
-
-% Ringraziamenti
-\include{chapters/acknowledgements}
 
 \afterpreface
 
@@ -114,6 +100,9 @@
 
 % Conclusioni
 \include{chapters/conclusions}
+
+% Ringraziamenti
+\include{chapters/acknowledgements}
 
 \printbibliography
 
