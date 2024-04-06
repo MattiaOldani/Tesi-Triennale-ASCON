@@ -1,0 +1,75 @@
+\documentclass[a4paper, 12pt, italian]{extarticle}
+
+\usepackage{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+
+\usepackage[a-1b]{pdfx}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=blue,
+}
+
+\usepackage{biblatex}
+\addbibresource{bibliography.bib}
+
+\title{\huge \bfseries Riassunto Elaborato Finale}
+\author{\Large \textit{Oldani Mattia}}
+\date{Marzo 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Ente presso cui è stato svolto il lavoro di stage}
+
+Il lavoro di tirocinio è stato di tipologia interna presso il dipartimento di Informatica dell'Università degli Studi di Milano, sotto la supervisione del docente Andrea Visconti.
+
+\section{Contesto iniziale}
+
+Il lavoro svolto riguarda la parte sperimentale nel contesto dello studio e dell'analisi della famiglia di algoritmi crittografici ASCON, dichiarata come nuovo standard per la crittografia lightweight il 7 febbraio 2023 da parte del NIST.
+
+\section{Obiettivi del lavoro}
+
+Il lavoro di tirocinio si concentra sull'analisi prestazionale degli algoritmi presentati da ASCON nella gara del NIST. Considerata la natura lightweight degli algoritmi, le piattaforme utilizzate per il testing sono tre dispositivi IoT: Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. 
+
+Gli obiettivi sono (1) mostrare quali algoritmi sono i migliori per tempi di esecuzione e spazio utilizzato e (2) quali implementazioni sono le migliori per ogni algoritmo. Queste riguardano l'architettura del processore (ARM, ESP, AVX ecc.), la dimensione massima di dati che esso può gestire (8 bit, 32 bit, 64 bit, ecc.) o particolari instruction set (funnel-shift, base, ecc.).
+
+\section{Descrizione del lavoro svolto}
+
+Il lavoro, per ogni dispositivo testato, ha prima richiesto un setup della suite di test, con la creazione dei folder contenenti i file delle implementazioni da testare e un ``main'' che coordinasse i file precedenti. Il pool di implementazioni da testare è stato selezionato in base all'architettura hardware dei device a disposizione.
+
+Il file ``main'', invece, è una semplice modifica del file fornito da ASCON per permettere la compilazione della suite di test su Arduino IDE\footnote{Per le board Arduino e Adafruit.} e per eseguire testing su precise dimensione di plaintext\footnote{Per ogni board.}.
+
+Successivamente si è proseguito con la compilazione e la raccolta dati. Le prime due board presentate si sono affidate all'Arduino IDE per la compilazione, mentre l'ultima si è servita del compilatore ``gcc'' direttamente dal terminale. L'esecuzione delle suite di test ha generato una serie di dati raccolti in file CSV facilmente interrogabili.
+
+In ultima istanza sono stati analizzati i dati raccolti tramite notebook Jupyter.
+
+\section{Tecnologie coinvolte}
+
+Sono state coinvolte le seguenti tecnologie:
+\begin{itemize}
+    \item Famiglia di algoritmi crittografici lightweight ASCON;
+    \item Arduino IDE per la compilazione delle suite di test per i device Arduino e Adafruit;
+    \item Linguaggi C, C++ e Arduino per la scrittura (parziale) del file ``main'' descritto in precedenza;
+    \item Python e Bash per l'automazione di task quali compilazione, raccolta dati e creazione di folder contenenti le implementazioni da testare;
+    \item Python e Jupyter Notebook per l'analisi dei dati raccolti.
+\end{itemize}
+
+\section{Competenze e risultati raggiunti}
+
+Le analisi sui dati raccolti hanno evidenziato gli ottimi tempi di esecuzione degli algoritmi presentati da ASCON e, considerando specifiche implementazioni, anche un ottimo spazio utilizzato. Questo risultato sottolinea inoltre la grande duttilità che può fornire ASCON: su architetture con forti limiti di spazio possono essere impiegate implementazioni che, una volta compilate, occupano poco spazio in memoria ma che garantiscono comunque ottime prestazioni; mentre su architetture che danno priorità ai tempi di esecuzione possono essere impiegate implementazioni molto rapide.
+
+Il lavoro di tirocinio ha permesso di familiarizzare con i microcontrollori, per merito di Arduino IDE che ne fornisce una suite di compilatori; inoltre ha contribuito anche nella scrittura, seppur parziale, di programmi eseguibili per questi dispositivi. Il testing e la raccolta dei risultati hanno seguito un approccio nuovo, con una suite di test corposa ma focalizzata su precise grandezze di plaintext.
+
+Infine, il lavoro ha costruito i rapporti con il docente -- sempre disponibile per rispondere a dubbi e controllare continuamente lo svolgersi del lavoro -- e con i colleghi. Con questi ultimi sono stati cruciali la sincronizzazione nell'utilizzo dei dispositivi fisici e i consigli rapidi ed efficaci -- in entrambe le direzioni -- che hanno permesso a tutti di poter ottenere il massimo dal proprio lavoro di tirocinio.
+
+\section{\bibname}
+
+\nocite{*}
+\printbibliography[heading=none]
+
+\end{document}
