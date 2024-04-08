@@ -1,6 +1,6 @@
 \chapter{Testing e analisi}\label{ch:test_analysis}
 
-Come scritto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni auth. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plaintext e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e RaspberryPi model 3B. Le prime due board sono prive di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione ``Raspberry Pi OS''.
+Come scritto in precedenza, ASCON propone tre famiglie di algoritmi crittografici: AEAD, funzioni hash e funzioni auth. Sono state testate tutte le famiglie proposte utilizzando diverse grandezze di plaintext e tre diversi dispositivi IoT fisici, ossia Arduino Due, Adafruit ItsyBitsy M0 Express e Raspberry Pi 3 Model B. Le prime due board sono prive di sistema operativo, mentre l'ultima è stata utilizzata con la distribuzione ``Raspberry Pi OS''.
 
 \noindent In questo capitolo verranno usati i termini ``algoritmo'' per indicare un algoritmo di una data famiglia e ``implementazione'' per indicare un'implementazione di un dato algoritmo di una data famiglia. Viene fatto questo per evitare di ripetere ogni volta ``una data implementazione di un dato algoritmo di una data famiglia''.
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 \section{Dispositivi utilizzati}
 
-L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{Arduino Due}, \textbf{Adafruit ItsyBitsy M0 Express} e \textbf{RaspberryPi model 3B}. \\
+L'attività di testing è stata eseguita su tre dispositivi IoT fisici: \textbf{Arduino Due}, \textbf{Adafruit ItsyBitsy M0 Express} e \textbf{Raspberry Pi 3 Model B}. \\
 
 \noindent Nei capitoli successivi saranno presenti due tipi di tabelle:
 \begin{enumerate}[label=\Roman*.]
@@ -1726,7 +1726,7 @@ Per la famiglia crypto hash sono stati testati tutti gli algoritmi proposti nell
 	\end{table}
 \end{landscape}
 
-\subsection{RaspberryPi model 3B}
+\subsection{Raspberry Pi 3 Model B}
 
 L'ultima board testata è un prodotto Raspberry, con un processore 64 bit quad core 1.2 GHz Broadcom BCM2837 con 1GB di RAM\cite{raspberry}. L'architettura della board non è presente nelle ottimizzazioni fornite da ASCON, quindi saranno testate al massimo tre implementazioni per algoritmo. \\
 
@@ -2240,7 +2240,7 @@ In termini di tempi di esecuzione, le implementazioni \texttt{armv7m small} e \t
 
 Dalle analisi precedenti, possiamo affermare che le implementazioni \texttt{bi32 armv7m} e \texttt{armv7m small} sono risultate le migliori in ogni algoritmo considerato, mentre l'implementazione \texttt{ref} si è spesso trovata tra le peggiori implementazioni.
 
-\subsection{RaspberryPi model 3B}
+\subsection{Raspberry Pi 3 Model B}
 
 Come specificato all'inizio di questo capitolo, i dati per questa board sono influenzati dalla velocità di esecuzione sotto il microsecondo e dalla presenza dello scheduler del sistema operativo. Inoltre, non saranno presenti gli algoritmi \texttt{bi32} perché la board possiede un'architettura 64 bit, che non rientra nelle ottimizzazioni fornite da ASCON.
 
