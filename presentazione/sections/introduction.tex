@@ -1,4 +1,4 @@
-\section{Introduzione}
+\section{Introduzione al problema}
 
 %=======================================================================
 
@@ -31,59 +31,37 @@
 
 %=======================================================================
 
-\begin{frame}{Processo di standardizzazione}
+\begin{frame}{Dispositivi utilizzati}
 
-    \setupchronology{startyear=2017,stopyear=2024,color=maincolor,startdate=false,stopdate=false,arrowheight=1.6pc}
-    \setupchronoperiode{textstyle=\it,startdate=false,stopdate=false,textdepth=-0.5cm}
-    \setupchronoevent{textstyle=\it,year=false,markdepth=0.3cm}
-    \setupchronograduation[event]{markdepth=1.5cm}
-    
-    \startchronology
-        \chronograduation{1}
-        \chronoevent{2018}{Inizio}
-        \chronoperiode[color=red]{2018}{2019}{Raccolta}
-        \chronoevent{2019}{Round 1}
-        \chronoperiode[color=yellow]{2019}{2021}{Round 2}
-        \chronoperiode[color=green]{2021}{2023}{Finale}
-        \chronoevent{2023}{Standardizzazione}
-    \stopchronology
+\begin{figure}
+    \centering
+    \begin{subfigure}[m]{0.30\textwidth}
+        \centering
+        \includegraphics[height=0.49\textwidth]{images/arduino.png}
+        \subcaption{Arduino Due.}
+    \end{subfigure}
+    \hfill \hfill \hfill
+    \begin{subfigure}[m]{0.36\textwidth}
+        \centering
+        \includegraphics[height=0.40\textwidth]{images/adafruit.png}
+        \subcaption{Adafruit ItsyBitsy M0 Express.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[m]{0.30\textwidth}
+    \centering
+        \includegraphics[height=0.48\textwidth]{images/raspberry.png}
+        \subcaption{Raspberry Pi 3 Model B.}
+    \end{subfigure}
+\end{figure}
 
 \end{frame}
 
 %=======================================================================
 
-\begin{frame}{Famiglia ASCON}
-    \begin{columns}
+\begin{frame}{Workflow}
 
-    \begin{column}{0.30\textwidth}
+\begin{center}
+    \includegraphics[height=0.30\textwidth]{images/workflow.png}
+\end{center}
 
-    \begin{block}{Hash}
-        \begin{center}
-            Algoritmi hash e XOF \\ 4 algoritmi
-        \end{center}
-    \end{block}
-
-    \end{column}
-    
-    \begin{column}{0.40\textwidth}
-
-    \begin{block}{AEAD}
-        \begin{center}
-            Algoritmi di cifratura autenticata \\ 2+1 algoritmi
-        \end{center}
-    \end{block}
-
-    \end{column}
-
-    \begin{column}{0.30\textwidth}
-
-    \begin{block}{Auth}
-        \begin{center}
-            Algoritmi MAC e PRF \\ 5 algoritmi
-        \end{center}
-    \end{block}
-
-    \end{column}
-
-    \end{columns}
 \end{frame}
